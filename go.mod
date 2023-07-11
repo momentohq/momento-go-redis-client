@@ -1,4 +1,4 @@
-module github.com/momento-redis/go-redis-client
+module github.com/momentohq/go-redis-client
 
 go 1.20
 

@@ -3,15 +3,9 @@ package helpers
 import (
 	"context"
 	"flag"
-	"github.com/momentohq/client-sdk-go/auth"
-	"github.com/momentohq/client-sdk-go/config"
-	"github.com/momentohq/client-sdk-go/momento"
 	"testing"
-	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-
-	momentoredis "github.com/momento-redis/go-redis-client/momento-redis"
+	"github.com/momentohq/client-sdk-go/momento"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -24,20 +18,18 @@ type SharedContext struct {
 	// using Momento as we provide resource-level isolation and have no notion of a cluster exposed to our customers.
 	// This type declaration here serves as a validation and compile-time errors will occur if we do not implement
 	// any particular AP exposed the go-redis Client
-	Client redis.Cmdable
-
-	Ctx context.Context
+	Client        redis.Cmdable
+	MomentoClient momento.CacheClient
+	Ctx           context.Context
 }
 
-const AuthTokenEnvVariable string = "MOMENTO_AUTH_TOKEN"
+const AuthTokenEnvVariable string = "TEST_AUTH_TOKEN"
 
 // required so that some Flags are autopopulated by testing without which Ginkgo complains
 var _ = func() bool {
 	testing.Init()
 	return true
 }()
-
-var SContext = NewSharedContext()
 
 func NewSharedContext() SharedContext {
 	shared := SharedContext{}
@@ -47,24 +39,16 @@ func NewSharedContext() SharedContext {
 }
 
 func setupFlags(shared *SharedContext) {
-	flag.BoolVar(&shared.UseRedis, "UseRedis", false, "Whether we want to run the tests using Momento or Redis")
+	flag.BoolVar(&shared.UseRedis, "UseRedis", true, "Whether we want to run the tests using Momento or Redis")
 	flag.Parse()
 }
 
-var _ = BeforeSuite(func() {
-	switch SContext.UseRedis {
-	case true:
-		SContext.Client = redis.NewClient(&redis.Options{
-			Addr: "127.0.0.1:6379",
-		})
-	case false:
-		cacheName := "default_cache"
-		credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-		mClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-		// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-		mClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
-			CacheName: cacheName,
-		})
-		SContext.Client, _ = momentoredis.NewMomentoRedisClient(mClient, cacheName)
-	}
-})
+func (SharedContext) CreateCache(ctx context.Context, client momento.CacheClient, cacheName string) {
+	client.CreateCache(ctx, &momento.CreateCacheRequest{
+		CacheName: cacheName,
+	})
+}
+
+func (SharedContext) DeleteCache(ctx context.Context, client momento.CacheClient, cacheName string) {
+	client.DeleteCache(ctx, &momento.DeleteCacheRequest{CacheName: cacheName})
+}

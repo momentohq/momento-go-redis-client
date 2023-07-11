@@ -2,6 +2,7 @@ package momento_redis
 
 import (
 	"fmt"
+
 	"github.com/momentohq/client-sdk-go/momento"
 )
 

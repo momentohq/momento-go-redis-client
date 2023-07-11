@@ -82,11 +82,6 @@ func (m *MomentoRedisClient) SetEx(ctx context.Context, key string, value interf
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *BoolCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
 func (m *MomentoRedisClient) SetXX(ctx context.Context, key string, value interface{}, expiration time.Duration) *BoolCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
