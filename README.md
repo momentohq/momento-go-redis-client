@@ -44,6 +44,7 @@ redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_POR
 package redis
 
 import (
+	"context"
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
@@ -53,8 +54,8 @@ import (
 credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
 cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
 // create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-cacheClient.CreateCache(sContext.Ctx, mClient, cacheName)
-redisClient, _ := momento_redis.NewMomentoRedisClient(mClient, cacheName)
+cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest {CacheName : "default_cache"})
+redisClient, _ := momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
 ```
 
 </td>
