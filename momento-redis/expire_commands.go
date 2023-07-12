@@ -7,11 +7,6 @@ import (
 	. "github.com/redis/go-redis/v9"
 )
 
-func (m *MomentoRedisClient) Expire(ctx context.Context, key string, expiration time.Duration) *BoolCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
 func (m *MomentoRedisClient) ExpireAt(ctx context.Context, key string, tm time.Time) *BoolCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))

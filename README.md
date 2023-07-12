@@ -56,3 +56,20 @@ cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*t
 cacheClient.CreateCache(sContext.Ctx, mClient, cacheName)
 redisClient, _ := momento_redis.NewMomentoRedisClient(mClient, cacheName)
 ```
+
+</td>
+</tr>
+</table>
+
+**NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`). 
+We will continue to add support for additional Redis APIs in the future; for more information see the [Current Redis API Support](#current-redis-api-support) section later in this doc.
+
+## Current Redis API Support
+
+This library supports the most popular Redis APIs, but does not yet support all Redis APIs. We currently support the most
+common APIs related to string values (GET, SET, etc.). We will be adding support for additional
+APIs in the future. If there is a particular API that you need support for, please drop by our [Discord](https://discord.com/invite/3HkAKjUZGq)
+or e-mail us at [support@momentohq.com](mailto:support@momentohq.com) and let us know!
+
+In the meantime, if you call a method from the `momento-redis` API that we do not yet support, you will get a panic for 
+`UnsupportedOperationError`; letting you know that the method is not implemented yet.

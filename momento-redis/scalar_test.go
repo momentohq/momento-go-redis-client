@@ -171,6 +171,162 @@ var _ = Describe("Scalar methods", func() {
 		})
 	})
 
+	var _ = Describe("Delete key", func() {
+		It("Deletes key successfully", func() {
+			setResp := sContext.Client.Set(sContext.Ctx, "key", "value", 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			getResp := sContext.Client.Get(sContext.Ctx, "key")
+			Expect(getResp.Val()).To(Equal("value"))
+			Expect(getResp.Err()).To(BeNil())
+
+			delResp := sContext.Client.Del(sContext.Ctx, "key")
+			Expect(delResp.Val()).To(Equal(int64(1)))
+			Expect(delResp.Err()).To(BeNil())
+		})
+
+		It("Key doesn't exist", func() {
+
+			delResp := sContext.Client.Del(sContext.Ctx, "idonatexist")
+			if sContext.UseRedis {
+				Expect(delResp.Val()).To(Equal(int64(0)))
+			} else {
+				Expect(delResp.Val()).To(Equal(int64(1)))
+
+			}
+			Expect(delResp.Err()).To(BeNil())
+		})
+
+		It("Cache doesn't exist", func() {
+			// cache only applies to Momento
+			if sContext.UseRedis {
+				return
+			}
+			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			resp := momentoRedisNonExistentCache.Del(sContext.Ctx, "key")
+			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
+			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
+		})
+
+		It("More than one key not supported", func() {
+			if sContext.UseRedis {
+				// redis does support more than one key deletion at a time
+				return
+			}
+			defer assertUnsupportedOperationPanic("Momento supports deletion of a single key at a time")
+			sContext.Client.Del(sContext.Ctx, "idontexist", "anotherKey")
+		})
+	})
+
+	var _ = Describe("Expire key", func() {
+		It("expire or update ttl set successfully", func() {
+			setResp := sContext.Client.Set(sContext.Ctx, "key", "value", 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			expResp := sContext.Client.Expire(sContext.Ctx, "key", 10*time.Second)
+			Expect(expResp.Err()).To(BeNil())
+			Expect(expResp.Val()).To(Equal(true))
+
+		})
+
+		It("expire or update ttl key doesn't exist", func() {
+			expResp := sContext.Client.Expire(sContext.Ctx, "IDontExist", 10*time.Second)
+			Expect(expResp.Err()).To(BeNil())
+			Expect(expResp.Val()).To(Equal(false))
+		})
+
+		It("expire or update ttl with 0 key exists and gets deleted", func() {
+			setResp := sContext.Client.Set(sContext.Ctx, "key", "value", 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			expResp := sContext.Client.Expire(sContext.Ctx, "key", 0*time.Second)
+			Expect(expResp.Err()).To(BeNil())
+			Expect(expResp.Val()).To(Equal(true))
+
+			getResp := sContext.Client.Get(sContext.Ctx, "key")
+			Expect(getResp.Val()).To(Equal(""))
+		})
+
+		It("expire or update ttl with 0 key doesnt exist and gets deleted", func() {
+
+			expResp := sContext.Client.Expire(sContext.Ctx, "idontexist", 0*time.Second)
+			Expect(expResp.Err()).To(BeNil())
+			if sContext.UseRedis {
+				// expire with 0 triggers delete and redis knows the key didn't existed
+				// so says false
+				Expect(expResp.Val()).To(Equal(false))
+			} else {
+				// expire with 0 triggers delete and momento doesn't know the key didn't existed
+				// so says true
+				Expect(expResp.Val()).To(Equal(true))
+			}
+		})
+
+		It("expire or update ttl with <0 key doesnt exist and gets deleted", func() {
+
+			expResp := sContext.Client.Expire(sContext.Ctx, "idontexist", -5*time.Second)
+			Expect(expResp.Err()).To(BeNil())
+			if sContext.UseRedis {
+				// expire with 0 triggers delete and redis knows the key didn't existed
+				// so says false
+				Expect(expResp.Val()).To(Equal(false))
+			} else {
+				// expire with 0 triggers delete and momento doesn't know the key didn't existed
+				// so says true
+				Expect(expResp.Val()).To(Equal(true))
+			}
+		})
+
+		It("Cache doesn't exist", func() {
+			// cache only applies to Momento
+			if sContext.UseRedis {
+				return
+			}
+			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			resp := momentoRedisNonExistentCache.Expire(sContext.Ctx, "key", 5*time.Second)
+			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
+			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
+		})
+	})
+
+	var _ = Describe("Get TTL", func() {
+
+		It("fetches TTL successfully", func() {
+			setResp := sContext.Client.Set(sContext.Ctx, "key", "value", 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			// redis is connected locally so it's way too fast for the
+			// ttl to change at all and falls within their expected error margin
+			time.Sleep(1 * time.Second)
+			ttl := sContext.Client.TTL(sContext.Ctx, "key")
+			Expect(ttl.Err()).To(BeNil())
+			Expect(ttl.Val().Seconds() < 60).To(BeTrue())
+			// just adding enough buffer for tests to not be flaky
+			Expect(ttl.Val().Seconds() > 50).To(BeTrue())
+		})
+
+		It("key doesn't exist", func() {
+			ttl := sContext.Client.TTL(sContext.Ctx, "IDontExist")
+			Expect(ttl.Err()).To(BeNil())
+			Expect(ttl.Val()).To(Equal(time.Duration(-2)))
+		})
+
+		It("Cache doesn't exist", func() {
+			// cache only applies to Momento
+			if sContext.UseRedis {
+				return
+			}
+			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			resp := momentoRedisNonExistentCache.TTL(sContext.Ctx, "key")
+			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
+			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
+		})
+	})
+
 	var _ = Describe("Type check tests", func() {
 		It("Momento Redis error is of type Go-Redis Redis error", func() {
 			if sContext.UseRedis {

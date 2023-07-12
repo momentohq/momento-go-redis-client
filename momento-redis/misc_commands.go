@@ -47,11 +47,6 @@ func (m *MomentoRedisClient) Quit(ctx context.Context) *StatusCmd {
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) Del(ctx context.Context, keys ...string) *IntCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
 func (m *MomentoRedisClient) Unlink(ctx context.Context, keys ...string) *IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
@@ -153,11 +148,6 @@ func (m *MomentoRedisClient) SortInterfaces(ctx context.Context, key string, sor
 }
 
 func (m *MomentoRedisClient) Touch(ctx context.Context, keys ...string) *IntCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
-func (m *MomentoRedisClient) TTL(ctx context.Context, key string) *DurationCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
