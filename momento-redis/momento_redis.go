@@ -1,60 +1,17 @@
 package momento_redis
 
 import (
-	"context"
 	"fmt"
-	"time"
-
-	"github.com/momentohq/client-sdk-go/auth"
-	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
 )
 
+// MomentoRedisClient wrapper over momento cache client that provides Redis compatible APIs
 type MomentoRedisClient struct {
 	client    momento.CacheClient
 	cacheName string
 }
 
-const AuthTokenEnvVariable string = "MOMENTO_AUTH_TOKEN"
-
-func NewMomentoRedisClientWithDefaultCacheClient(cacheName string) (*MomentoRedisClient, error) {
-	credentials, envErr := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-	// fail fast if we can't fetch the credentials from env variable
-	if envErr != nil {
-		return nil, envErr
-	}
-
-	// default client with INFO logging capabilities and a 60-second default TTL for all keys
-	mClient, err := momento.NewCacheClient(config.LaptopLatest(), credentials, 60*time.Second)
-	if err != nil {
-		return nil, err
-	}
-
-	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	_, err = mClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
-		CacheName: cacheName,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	client := MomentoRedisClient{
-		cacheName: cacheName,
-		client:    mClient,
-	}
-
-	return &client, nil
-}
-
 func NewMomentoRedisClient(cacheClient momento.CacheClient, cacheName string) (*MomentoRedisClient, error) {
-	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	_, err := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
-		CacheName: cacheName,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	client := MomentoRedisClient{
 		cacheName: cacheName,
 		client:    cacheClient,

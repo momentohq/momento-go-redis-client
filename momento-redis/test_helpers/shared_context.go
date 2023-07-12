@@ -3,7 +3,11 @@ package helpers
 import (
 	"context"
 	"flag"
+	"github.com/momentohq/client-sdk-go/auth"
+	"github.com/momentohq/client-sdk-go/config"
+	"github.com/momentohq/client-sdk-go/momento"
 	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 
@@ -24,6 +28,8 @@ type SharedContext struct {
 
 	Ctx context.Context
 }
+
+const AuthTokenEnvVariable string = "MOMENTO_AUTH_TOKEN"
 
 // required so that some Flags are autopopulated by testing without which Ginkgo complains
 var _ = func() bool {
@@ -52,6 +58,13 @@ var _ = BeforeSuite(func() {
 			Addr: "127.0.0.1:6379",
 		})
 	case false:
-		SContext.Client, _ = momentoredis.NewMomentoRedisClientWithDefaultCacheClient("default_cache")
+		cacheName := "default_cache"
+		credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
+		mClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+		// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
+		mClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
+			CacheName: cacheName,
+		})
+		SContext.Client, _ = momentoredis.NewMomentoRedisClient(mClient, cacheName)
 	}
 })
