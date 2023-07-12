@@ -47,7 +47,7 @@ import (
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
-	"github.com/momento-redis/go-redis-client/momento-redis"
+	"github.com/momentohq/momento-go-redis-client/momento-redis"
 )
 
 credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
