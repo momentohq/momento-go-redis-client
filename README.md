@@ -55,15 +55,16 @@ credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
 cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
 // create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest {CacheName : "default_cache"})
-redisClient, _ := momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
+redisClient := momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
 ```
 
 </td>
 </tr>
 </table>
 
-**NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`). 
-We will continue to add support for additional Redis APIs in the future; for more information see the [Current Redis API Support](#current-redis-api-support) section later in this doc.
+**NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`),
+and doesn't support statefulCmdable APIs. We will continue to add support for additional Redis APIs in the future; 
+for more information see the [Current Redis API Support](#current-redis-api-support) section later in this doc.
 
 ## Current Redis API Support
 
@@ -161,22 +162,29 @@ API methods that we don't yet support, so you'll know before you even try to run
 All you need to do is type the `MomentoRedisClient` object we instantiated above as
 `MomentoRedisCmdable`. Here's what it looks like:
 
-```csharp
-MomentoRedisCmdable db = MomentoRedisDatabase(
-  new CacheClient(
-    config: Configurations.Laptop.v1(),
-    authProvider: new EnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN"),
-    defaultTtl: TimeSpan.FromSeconds(60),
-  }),
-  "cache_name"
-);
+```go
+package redis
+
+import (
+	"context"
+	"github.com/momentohq/client-sdk-go/auth"
+	"github.com/momentohq/client-sdk-go/config"
+	"github.com/momentohq/client-sdk-go/momento"
+	"github.com/momentohq/momento-go-redis-client/momento-redis"
+)
+
+credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
+cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest {CacheName : "default_cache"})
+var redisClient momento_redis.MomentoRedisCmdable = momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
 ```
 
-Exactly the same constructor as before other than the `IMomentoRedisDatabase` type, and now you get compile-time compatibility checking!\*
+Exactly the same constructor call as before other than the `momento_redis.MomentoRedisCmdable` type, and now you get compile-time compatibility checking!\*
 
 If you try this, and your code doesn't compile because we are missing APIs that you need, please do reach out to us!
 
-\* Note that some flags are not supported. You may get a warning for those (eg `CommandFlags.FireAndForget`) or a runtime exception (`When.Exists`).
+\* Note that some flags are not supported. You may get a runtime error (`UnsupportedOperationError`) for those.
 
 ----------------------------------------------------------------------------------------
 For more info, visit our website at [https://gomomento.com](https://gomomento.com)!

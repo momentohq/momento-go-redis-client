@@ -3,7 +3,7 @@ module github.com/momentohq/momento-go-redis-example
 go 1.20
 
 require (
-	github.com/momentohq/momento-go-redis-client v0.1.5
+	github.com/momentohq/momento-go-redis-client v0.1.6
 	github.com/redis/go-redis/v9 v9.0.5
 )
 

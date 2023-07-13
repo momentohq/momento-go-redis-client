@@ -126,7 +126,7 @@ func initMomentoRedisClient(options MomentoOptions) *momento_redis.MomentoRedisC
 		CacheName: options.cacheName,
 	})
 
-	redisClient, _ := momento_redis.NewMomentoRedisClient(cacheClient, options.cacheName)
+	redisClient := momento_redis.NewMomentoRedisClient(cacheClient, options.cacheName)
 	momentoCacheClient = cacheClient
 	return redisClient
 }
