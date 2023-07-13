@@ -79,14 +79,14 @@ In the meantime, if you call a method from the `momento-redis` API that we do no
 ## Installation
 
 ```bash
-go get github.com/momentohq/momento-go-redis-client@v0.1.8
+go get github.com/momentohq/momento-go-redis-client@v0.1.9
 ```
 
 ## Examples
 
 ### Prerequisites
 
-To run these examples, you will need a Momento auth token. You can generate one using the [Momento CLI](https://github.com/momentohq/momento-cli).
+To get started with Momento you will need a Momento Auth Token. You can get one from the [Momento Console](https://console.gomomento.com).
 
 The examples will utlize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
 
