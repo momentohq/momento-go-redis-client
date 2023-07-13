@@ -3,6 +3,7 @@ package momento_redis_test
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/momentohq/client-sdk-go/auth"
@@ -43,12 +44,24 @@ var _ = Describe("Scalar methods", func() {
 
 	var _ = Describe("Get and Set", func() {
 		It("Sets string and Gets it", func() {
+
 			setResp := sContext.Client.Set(sContext.Ctx, "key", "value", 60*time.Second)
 			Expect(setResp.Err()).To(BeNil())
 			Expect(setResp.Val()).To(Equal("OK"))
 
 			getResp := sContext.Client.Get(sContext.Ctx, "key")
 			Expect(getResp.Val()).To(Equal("value"))
+			Expect(getResp.Err()).To(BeNil())
+		})
+
+		It("Sets int types and Gets it", func() {
+
+			setResp := sContext.Client.Set(sContext.Ctx, "key", 4, 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			getResp := sContext.Client.Get(sContext.Ctx, "key")
+			Expect(getResp.Val()).To(Equal(strconv.FormatInt(4, 10)))
 			Expect(getResp.Err()).To(BeNil())
 		})
 
@@ -60,6 +73,17 @@ var _ = Describe("Scalar methods", func() {
 			getResp := sContext.Client.Get(sContext.Ctx, "key")
 			Expect(getResp.Val()).To(Equal("value"))
 			Expect(getResp.Err()).To(BeNil())
+		})
+
+		It("Sets time and Gets it", func() {
+			setResp := sContext.Client.Set(sContext.Ctx, "key", 10*time.Second, 60*time.Second)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
+
+			getResp := sContext.Client.Get(sContext.Ctx, "key")
+			Expect(getResp.Err()).To(BeNil())
+			// RESP converts 10 seconds to nanoseconds which is 10 billion
+			Expect(getResp.Val()).To(Equal("10000000000"))
 		})
 
 		It("Key doesn't exist", func() {
@@ -86,17 +110,6 @@ var _ = Describe("Scalar methods", func() {
 			}
 			defer assertUnsupportedOperationPanic("Momento does not support KeepTTL; please specify a TTL")
 			sContext.Client.Set(sContext.Ctx, "key", "value", redis.KeepTTL)
-		})
-
-		It("Unsupported value type results in panic", func() {
-			// negative test only applicable to Momento
-			if sContext.UseRedis {
-				return
-			}
-			type random struct{}
-			defer assertUnsupportedOperationPanic("Momento supports bytes and string for the value of the key in Set operation")
-			sContext.Client.Set(sContext.Ctx, "key", random{}, 60*time.Second)
-
 		})
 
 		It("Invalid ttl results in error", func() {
@@ -145,17 +158,6 @@ var _ = Describe("Scalar methods", func() {
 			}
 			defer assertUnsupportedOperationPanic("Momento does not support KeepTTL; please specify a TTL")
 			sContext.Client.SetNX(sContext.Ctx, "key", "value", redis.KeepTTL)
-		})
-
-		It("Unsupported value type results in panic", func() {
-			// negative test only applicable to Momento
-			if sContext.UseRedis {
-				return
-			}
-			type random struct{}
-			defer assertUnsupportedOperationPanic("Momento supports bytes and string for the value of the key in Set operation")
-			sContext.Client.SetNX(sContext.Ctx, "key", random{}, 60*time.Second)
-
 		})
 
 		It("Invalid ttl results in error", func() {

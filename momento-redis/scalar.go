@@ -37,14 +37,22 @@ func (m *MomentoRedisClient) Get(ctx context.Context, key string) *redis.StringC
 
 func (m *MomentoRedisClient) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
 
-	momentoValue := panicIfNotSupportedArgs(expiration, value)
+	panicIfNotSupportedArgs(expiration)
 
 	resp := &redis.StatusCmd{}
+
+	marshaller := &Marshaller{}
+	marshalledValue, marshallErr := marshaller.MarshalRedisValue(value)
+
+	if marshallErr != nil {
+		resp.SetErr(RedisError(marshallErr.Error()))
+		return resp
+	}
 
 	set, err := m.client.Set(ctx, &momento.SetRequest{
 		CacheName: m.cacheName,
 		Key:       momento.String(key),
-		Value:     momentoValue,
+		Value:     momento.String(marshalledValue),
 		Ttl:       expiration,
 	})
 
@@ -67,14 +75,22 @@ func (m *MomentoRedisClient) Set(ctx context.Context, key string, value interfac
 
 func (m *MomentoRedisClient) SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd {
 
-	momentoValue := panicIfNotSupportedArgs(expiration, value)
+	panicIfNotSupportedArgs(expiration)
 
 	resp := &redis.BoolCmd{}
+	marshaller := &Marshaller{}
+
+	marshalledValue, marshallErr := marshaller.MarshalRedisValue(value)
+
+	if marshallErr != nil {
+		resp.SetErr(RedisError(marshallErr.Error()))
+		return resp
+	}
 
 	setNX, err := m.client.SetIfNotExists(ctx, &momento.SetIfNotExistsRequest{
 		CacheName: m.cacheName,
 		Key:       momento.String(key),
-		Value:     momentoValue,
+		Value:     momento.String(marshalledValue),
 		Ttl:       expiration,
 	})
 
@@ -189,22 +205,10 @@ func (m *MomentoRedisClient) TTL(ctx context.Context, key string) *redis.Duratio
 	return resp
 }
 
-func panicIfNotSupportedArgs(expiration time.Duration, value interface{}) momento.Value {
+func panicIfNotSupportedArgs(expiration time.Duration) {
 	if expiration == redis.KeepTTL {
 		panic(UnsupportedOperationError("Momento does not support KeepTTL; please specify a TTL"))
 	}
-
-	var momentoValue momento.Value
-	switch v := value.(type) {
-	case []byte:
-		momentoValue = momento.Bytes(v)
-	case string:
-		momentoValue = momento.String(v)
-	default:
-		panic(UnsupportedOperationError("Momento supports bytes and string for the value of the key in Set operation"))
-	}
-
-	return momentoValue
 }
 
 func (m *MomentoRedisClient) Close() error {

@@ -74,3 +74,109 @@ or e-mail us at [support@momentohq.com](mailto:support@momentohq.com) and let us
 
 In the meantime, if you call a method from the `momento-redis` API that we do not yet support, you will get a panic for 
 `UnsupportedOperationError`; letting you know that the method is not implemented yet.
+
+## Installation
+
+```bash
+go get github.com/momentohq/momento-go-redis-client
+```
+
+## Examples
+
+### Prerequisites
+
+To run these examples, you will need a Momento auth token. You can generate one using the [Momento CLI](https://github.com/momentohq/momento-cli).
+
+The examples will utlize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
+
+### Basic Example
+
+In the [`examples/basic`](./examples/basic) directory, you will find a simple CLI app that does some basic sets and gets
+on string values. You can also run the tests against your Redis server by providing ```-useRedis``` flag along 
+with ```-host x.x.x.x``` and ```-port xxxx```.
+
+You can run the example via `go run`.
+
+Here's an example run against Momento Cache:
+
+```bash
+cd examples/basic
+export MOMENTO_AUTH_TOKEN=<your momento auth token goes here>
+go run main.go -cacheName cache -authToken $MOMENTO_AUTH_TOKEN
+```
+
+And the output should look something like this:
+
+```bash
+INFO (CacheClient): Creating cache with name: cache
+INFO (CacheClient): Cache 'cache' created successfully
+
+Using Momento as a backend for go-redis with cache name "cache"
+
+-------------------------------------------------
+-----------------------SET-----------------------
+Successfully set key "Momento" with response "OK"
+-----------------------SET-----------------------
+
+-----------------------GET-----------------------
+Got response value as "cache" for key "Momento"
+-----------------------GET-----------------------
+
+-----------------------DEL-----------------------
+Delete successful for key "Momento" with response "1"
+-----------------------DEL-----------------------
+
+-----------------------SETNX-----------------------
+Successfully set key "Momento" with response "true"
+-----------------------SETNX-----------------------
+
+-----------------------EXPIRE-----------------------
+Successfully set expiration for key "Momento" with response "true"
+-----------------------EXPIRE-----------------------
+
+-----------------------TTL-----------------------
+Successfully received remaining ttl 1m39.969s for key "Momento"
+-----------------------TTL-----------------------
+
+INFO (CacheClient): Deleting cache with name: cache
+INFO (CacheClient): Cache 'cache' deleted successfully
+```
+
+To run against Redis, the command will look like:
+
+```bash
+ go run main.go -useRedis -host 127.0.0.1 -port 6379
+```
+
+### Go-Lang Compile-Time API Checking
+
+If you'd like compile-time checking to tell you if you are using any APIs that we don't yet
+support, we provide our own `MomentoRedisCmdable` interface, which is a fully compatible subset of the official `go-redis`
+interface `Cmdable`, but explicitly lists out the APIs that we currently support.
+
+With a one-line change to your constructor call, you get back an instance of this interface instead of the
+default `redis.Cmdable` interface. Then the go-lang compiler will catch any calls your code is making to Redis
+API methods that we don't yet support, so you'll know before you even try to run the code.
+
+All you need to do is type the `MomentoRedisClient` object we instantiated above as
+`MomentoRedisCmdable`. Here's what it looks like:
+
+```csharp
+MomentoRedisCmdable db = MomentoRedisDatabase(
+  new CacheClient(
+    config: Configurations.Laptop.v1(),
+    authProvider: new EnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN"),
+    defaultTtl: TimeSpan.FromSeconds(60),
+  }),
+  "cache_name"
+);
+```
+
+Exactly the same constructor as before other than the `IMomentoRedisDatabase` type, and now you get compile-time compatibility checking!\*
+
+If you try this, and your code doesn't compile because we are missing APIs that you need, please do reach out to us!
+
+\* Note that some flags are not supported. You may get a warning for those (eg `CommandFlags.FireAndForget`) or a runtime exception (`When.Exists`).
+
+----------------------------------------------------------------------------------------
+For more info, visit our website at [https://gomomento.com](https://gomomento.com)!
