@@ -1,0 +1,66 @@
+name: Test
+
+on:
+  workflow_call:
+    secrets:
+      auth-token:
+        description: "Auth token used for live testing"
+        required: true
+      github-token:
+        description: "Token for running Github actions"
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    env:
+      TEST_AUTH_TOKEN: ${{ secrets.auth-token }}
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.github-token }}
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+
+      - name: Install devtools
+        run: make install-devtools
+
+      - name: Lint
+        run: make lint
+
+      # If there are any diffs from goimports or go mod tidy, fail.
+      - name: Verify no changes from goimports and go mod tidy
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git diff
+            exit 1
+          fi
+
+      - name: Build
+        run: make build
+
+      - name: Build examples
+        run: make build-examples
+
+      # Run tests both for momento and redis server
+      - name: Run test-momento
+        run: make test-momento
+
+      - name: Run test-redis
+        run: make test-redis
+
+
