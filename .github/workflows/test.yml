@@ -35,13 +35,6 @@ jobs:
       - name: Lint
         run: make lint --file=MakeFile
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-          only-new-issues: true
-          skip-pkg-cache: true
-
       # If there are any diffs from goimports or go mod tidy, fail.
       - name: Verify no changes from goimports and go mod tidy
         run: |
