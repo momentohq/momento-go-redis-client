@@ -27,7 +27,9 @@ const AuthTokenEnvVariable string = "TEST_AUTH_TOKEN"
 
 var useRedis bool
 
-// required so that some Flags are autopopulated by testing without which Ginkgo complains
+// This method is necessary so that all the Go related flags are initialized/parsed along with our custom
+// defined ones. If we don't call testing.Init() at the start of the test suite and try to parse our flags,
+// Ginkgo will complain about it saying our custom flag was defined but not provided even if we do provide it.
 var _ = func() bool {
 	flag.BoolVar(&useRedis, "UseRedis", false, "Whether we want to run the tests using Momento or Redis")
 	testing.Init()
