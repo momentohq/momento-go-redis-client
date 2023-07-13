@@ -1,8 +1,4 @@
-<img src="https://docs.momentohq.com/img/logo.svg" alt="logo" width="400"/>
-
-[![project status](https://momentohq.github.io/standards-and-practices/badges/project-status-incubating.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
-[![project stability](https://momentohq.github.io/standards-and-practices/badges/project-stability-alpha.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
-
+{{ ossHeader }}
 
 # Momento Go-Redis Compatibility Client
 
@@ -186,5 +182,4 @@ If you try this, and your code doesn't compile because we are missing APIs that 
 
 \* Note that some flags are not supported. You may get a runtime error (`UnsupportedOperationError`) for those.
 
-----------------------------------------------------------------------------------------
-For more info, visit our website at [https://gomomento.com](https://gomomento.com)!
+{{ ossFooter }}
