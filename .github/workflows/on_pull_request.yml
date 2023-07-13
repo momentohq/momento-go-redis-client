@@ -19,19 +19,10 @@ jobs:
         with:
           token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
 
-      - name: Verify README generation
-        uses: momentohq/standards-and-practices/github-actions/oss-readme-template@gh-actions-v2
-        with:
-          project_status: official
-          project_stability: stable
-          project_type: sdk
-          sdk_language: Go
-          template_file: ./README.template.md
-          output_file: ./README.md
-          dev_docs_slug: go
-
   test:
     uses: ./.github/workflows/test.yml
     secrets:
       auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
       github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
+
+

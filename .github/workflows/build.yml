@@ -20,5 +20,3 @@ jobs:
           project_status: incubating
           project_stability: alpha
           project_type: other
-          template_file: ./README.template.md
-          output_file: ./README.md
