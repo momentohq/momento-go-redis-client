@@ -16,12 +16,12 @@ type MomentoRedisClient struct {
 	cacheName string
 }
 
-func NewMomentoRedisClient(cacheClient momento.CacheClient, cacheName string) (*MomentoRedisClient, error) {
+func NewMomentoRedisClient(cacheClient momento.CacheClient, cacheName string) *MomentoRedisClient {
 	client := MomentoRedisClient{
 		cacheName: cacheName,
 		client:    cacheClient,
 	}
-	return &client, nil
+	return &client
 }
 
 func (c *MomentoRedisClient) String() string {

@@ -78,7 +78,7 @@ In the meantime, if you call a method from the `momento-redis` API that we do no
 ## Installation
 
 ```bash
-go get github.com/momentohq/momento-go-redis-client
+go get github.com/momentohq/momento-go-redis-client@v0.1.5
 ```
 
 ## Examples

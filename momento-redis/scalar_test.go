@@ -33,7 +33,7 @@ var _ = Describe("Scalar methods", func() {
 			sContext.MomentoClient = mClient
 			// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 			sContext.CreateCache(sContext.Ctx, mClient, cacheName)
-			sContext.Client, _ = momentoredis.NewMomentoRedisClient(mClient, cacheName)
+			sContext.Client = momentoredis.NewMomentoRedisClient(mClient, cacheName)
 		}
 		DeferCleanup(func() {
 			if !sContext.UseRedis {
@@ -97,7 +97,7 @@ var _ = Describe("Scalar methods", func() {
 			if sContext.UseRedis {
 				return
 			}
-			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			momentoRedisNonExistentCache := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
 			resp := momentoRedisNonExistentCache.Set(sContext.Ctx, "key", "value", 60*time.Second)
 			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
 			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
@@ -145,7 +145,7 @@ var _ = Describe("Scalar methods", func() {
 			if sContext.UseRedis {
 				return
 			}
-			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			momentoRedisNonExistentCache := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
 			resp := momentoRedisNonExistentCache.SetNX(sContext.Ctx, "key", "value", 60*time.Second)
 			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
 			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
@@ -205,7 +205,7 @@ var _ = Describe("Scalar methods", func() {
 			if sContext.UseRedis {
 				return
 			}
-			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			momentoRedisNonExistentCache := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
 			resp := momentoRedisNonExistentCache.Del(sContext.Ctx, "key")
 			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
 			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
@@ -287,7 +287,7 @@ var _ = Describe("Scalar methods", func() {
 			if sContext.UseRedis {
 				return
 			}
-			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			momentoRedisNonExistentCache := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
 			resp := momentoRedisNonExistentCache.Expire(sContext.Ctx, "key", 5*time.Second)
 			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
 			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
@@ -322,7 +322,7 @@ var _ = Describe("Scalar methods", func() {
 			if sContext.UseRedis {
 				return
 			}
-			momentoRedisNonExistentCache, _ := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
+			momentoRedisNonExistentCache := momentoredis.NewMomentoRedisClient(sContext.MomentoClient, "NonExistent")
 			resp := momentoRedisNonExistentCache.TTL(sContext.Ctx, "key")
 			Expect(resp.Err()).To(BeAssignableToTypeOf(momentoredis.RedisError("")))
 			Expect(resp.Err().Error()).To(ContainSubstring("NotFoundError: Cache not found"))
