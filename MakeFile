@@ -27,9 +27,18 @@ lint: format imports tidy vet
 build:
 	go build ./...
 
+.PHONY: build-examples
+build-examples:
+	cd examples
+	go build ./...
+
 .PHONY: precommit
 precommit: lint test-momento
 
 .PHONY: test-momento
 test-momento:
 	ginkgo momento-redis/ -- -UseRedis=false
+
+.PHONY: test-redis
+test-redis:
+	ginkgo momento-redis/ -- -UseRedis=true
