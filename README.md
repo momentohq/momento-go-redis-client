@@ -1,7 +1,7 @@
 <img src="https://docs.momentohq.com/img/logo.svg" alt="logo" width="400"/>
 
 [![project status](https://momentohq.github.io/standards-and-practices/badges/project-status-incubating.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
-[![project stability](https://momentohq.github.io/standards-and-practices/badges/project-stability-experimental.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
+[![project stability](https://momentohq.github.io/standards-and-practices/badges/project-stability-alpha.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
 
 
 # Momento Go-Redis Compatibility Client
@@ -79,7 +79,7 @@ In the meantime, if you call a method from the `momento-redis` API that we do no
 ## Installation
 
 ```bash
-go get github.com/momentohq/momento-go-redis-client@v0.1.5
+go get github.com/momentohq/momento-go-redis-client@v0.1.8
 ```
 
 ## Examples
