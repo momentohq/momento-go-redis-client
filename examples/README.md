@@ -1,5 +1,19 @@
 ### Basic Example
 
+### Prerequisites
+
+To run these examples, you will need a Momento auth token. A Momento auth token is required, you can generate one using the [Momento Console](https://console.gomomento.com)
+
+The examples will utilize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
+
+## Installation
+
+```bash
+go get github.com/momentohq/momento-go-redis-client@v0.1.8
+```
+
+### Basic Example
+
 In the [`basic`](./basic) directory, you will find a simple CLI app that does some basic sets and gets
 on string values. You can also run the tests against your Redis server by providing ```-useRedis=true``` flag
 
