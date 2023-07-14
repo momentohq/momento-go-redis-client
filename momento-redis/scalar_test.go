@@ -41,12 +41,18 @@ var _ = Describe("Scalar methods", func() {
 			}
 			sContext.MomentoClient = mClient
 			// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-			sContext.CreateCache(sContext.Ctx, mClient, cacheName)
+			_, createErr := sContext.CreateCache(sContext.Ctx, mClient, cacheName)
+			if createErr != nil {
+				panic("Failed to create cache with cache name " + cacheName + "\n" + createErr.Error())
+			}
 			sContext.Client = momentoredis.NewMomentoRedisClient(mClient, cacheName)
 		}
 		DeferCleanup(func() {
 			if !sContext.UseRedis {
-				sContext.DeleteCache(sContext.Ctx, sContext.MomentoClient, cacheName)
+				_, deleteErr := sContext.DeleteCache(sContext.Ctx, sContext.MomentoClient, cacheName)
+				if deleteErr != nil {
+					panic("Failed to create cache with cache name " + cacheName + "\n" + deleteErr.Error())
+				}
 			}
 		})
 	})

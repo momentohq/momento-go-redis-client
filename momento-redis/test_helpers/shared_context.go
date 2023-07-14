@@ -3,6 +3,7 @@ package helpers
 import (
 	"context"
 	"flag"
+	"github.com/momentohq/client-sdk-go/responses"
 	"testing"
 
 	"github.com/momentohq/client-sdk-go/momento"
@@ -44,12 +45,14 @@ func NewSharedContext() SharedContext {
 	return shared
 }
 
-func (SharedContext) CreateCache(ctx context.Context, client momento.CacheClient, cacheName string) {
-	client.CreateCache(ctx, &momento.CreateCacheRequest{
+func (SharedContext) CreateCache(ctx context.Context, client momento.CacheClient, cacheName string) (responses.CreateCacheResponse, error) {
+	return client.CreateCache(ctx, &momento.CreateCacheRequest{
 		CacheName: cacheName,
 	})
 }
 
-func (SharedContext) DeleteCache(ctx context.Context, client momento.CacheClient, cacheName string) {
-	client.DeleteCache(ctx, &momento.DeleteCacheRequest{CacheName: cacheName})
+func (SharedContext) DeleteCache(ctx context.Context, client momento.CacheClient, cacheName string) (responses.DeleteCacheResponse, error) {
+	return client.DeleteCache(ctx, &momento.DeleteCacheRequest{
+		CacheName: cacheName,
+	})
 }
