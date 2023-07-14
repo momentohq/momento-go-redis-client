@@ -51,7 +51,7 @@ var _ = Describe("Scalar methods", func() {
 			if !sContext.UseRedis {
 				_, deleteErr := sContext.DeleteCache(sContext.Ctx, sContext.MomentoClient, cacheName)
 				if deleteErr != nil {
-					panic("Failed to create cache with cache name " + cacheName + "\n" + deleteErr.Error())
+					panic("Failed to delete cache with cache name " + cacheName + "\n" + deleteErr.Error())
 				}
 			}
 		})

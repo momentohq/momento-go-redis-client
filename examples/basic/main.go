@@ -171,7 +171,7 @@ func parseFlags() {
 
 		if *cacheName == "" {
 			panic("Running in Momento mode: Momento cacheName (-cacheName) should be provided through command line arguments." +
-				"For Redis mode, use flag -useRedis along with -host and -port")
+				" For Redis mode, use flag -useRedis along with -host and -port")
 		}
 		options = &MomentoOptions{
 			cacheName:         *cacheName,
