@@ -62,8 +62,9 @@ func initRedisClient() redis.Cmdable {
 	if cErr != nil {
 		panic("Failed to initialize Momento cache client " + cErr.Error())
 	}
-	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	_, createErr := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	// create cache; it resumes execution normally incase the cache already exists
+	_, createErr := cacheClient.CreateCache(context.Background(), 
+		                &momento.CreateCacheRequest{CacheName: "default_cache"})
 	if createErr != nil {
 		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
 	}
@@ -195,8 +196,9 @@ func initRedisClient() momentoredis.MomentoRedisCmdable {
 	if cErr != nil {
 		panic("Failed to initialize Momento cache client " + cErr.Error())
 	}
-	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	_, createErr := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	// create cache; it resumes execution normally incase the cache already exists
+	_, createErr := cacheClient.CreateCache(context.Background(), 
+		                &momento.CreateCacheRequest{CacheName: "default_cache"})
 	if createErr != nil {
 		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
 	}
