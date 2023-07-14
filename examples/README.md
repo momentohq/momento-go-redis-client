@@ -76,9 +76,10 @@ If you'd like compile-time checking to tell you if you are using any APIs that w
 support, we provide our own `MomentoRedisCmdable` interface, which is a fully compatible subset of the official `go-redis`
 interface `Cmdable`, but explicitly lists out the APIs that we currently support.
 
-If you want the examples to be run using the Momento flavor interface, 
-change line number #37 on main.go and comment line number #38. With this one line of code change,
-you get compile time checking and it also runs against both Momento and Redis!
+If you want the examples to be run using the Momento flavor interface,
+change the type from ```redis.Cmdable``` to ```momentoredis.MomentoRedisCmdable``` where the client variable is declared near the 
+top of main(). With this one line of code change, you get compile time checking and it also runs against both 
+Momento and Redis!
 
 ###### From:
 
