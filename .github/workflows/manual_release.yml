@@ -1,20 +1,51 @@
 name: Manual Release
-# Triggers a merge from main->release, which will then trigger a release
-# from the release branch.
+
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  merge-to-release-branch:
+  release:
+    needs: [test]
+    runs-on: ubuntu-20.04
+    outputs:
+      version: ${{ steps.release.outputs.release }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set release
+        id: semrel
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          force-bump-patch-version: true
+
+      - name: Output release
+        id: release
+        run: echo "::set-output name=release::${{ steps.semrel.outputs.version }}"
+
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets:
+      auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
+      github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
+
+  publish_golang:
+    needs: [test, release]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - name: Setup repo
+        uses: actions/checkout@v3
 
-      - name: Merge main -> release
-        uses: devmasx/merge-branch@master
-        with:
-          type: now
-          from_branch: main
-          target_branch: release
-          github_token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
+      - name: Publish package
+        run: |
+          set -e
+          set -x
+          export COMPATIBILITY_CLIENT_VERSION="${{needs.release.outputs.version}}"
+          if [ -z "$COMPATIBILITY_CLIENT_VERSION"]
+          then
+            echo "Unable to determine Compatibility Client version!  Exiting!"
+            exit 1
+          fi
+          echo "COMPATIBILITY_CLIENT_VERSION=${COMPATIBILITY_CLIENT_VERSION}"
+          GOPROXY=proxy.golang.org go list -m github.com/momentohq/client-sdk-go@v${COMPATIBILITY_CLIENT_VERSION}
+        shell: bash
