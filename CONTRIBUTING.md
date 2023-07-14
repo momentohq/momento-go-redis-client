@@ -60,6 +60,7 @@ By running Redis on the local host, you can use the `redis-cli` to inspect the s
 
 This will run both the integration tests against Momento and Redis. As above, we assume the Redis server is running on `localhost:6379`.
 
-```
-TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN> make test
+```bash
+TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN> 
+make test
 ```

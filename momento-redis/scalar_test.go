@@ -30,8 +30,15 @@ var _ = Describe("Scalar methods", func() {
 				Addr: host + ":" + port,
 			})
 		case false:
-			credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-			mClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+			credential, eErr := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
+			if eErr != nil {
+				panic("Failed to initialize credentials through auth token. Did you export the environment" +
+					" variable TEST_AUTH_TOKEN?\n" + eErr.Error())
+			}
+			mClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+			if cErr != nil {
+				panic("Failed to initialize Momento cache client\n" + cErr.Error())
+			}
 			sContext.MomentoClient = mClient
 			// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 			sContext.CreateCache(sContext.Ctx, mClient, cacheName)

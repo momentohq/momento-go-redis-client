@@ -3,7 +3,6 @@
 [![project status](https://momentohq.github.io/standards-and-practices/badges/project-status-incubating.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
 [![project stability](https://momentohq.github.io/standards-and-practices/badges/project-stability-alpha.svg)](https://github.com/momentohq/standards-and-practices/blob/main/docs/momento-on-github.md)
 
-
 # Momento Go-Redis Compatibility Client
 
 ## What and Why?
@@ -21,9 +20,6 @@ To switch your existing `go-redis` application to use Momento, you only need to 
 <table>
 <tr>
  <td width="50%">With go-redis client</td>
- <td width="50%">With Momento's go-redis compatibility client</td>
-</tr>
-<tr>
  <td width="50%" valign="top">
 
 ```go
@@ -43,9 +39,11 @@ func initRedisClient() redis.Cmdable {
 }
 ```
 </td>
+
 </tr>
 <tr>
-<td width="50%">
+ <td width="50%">With Momento's go-redis compatibility client</td>
+ <td width="50%" valign="top">
 
 ```go
 package redis
@@ -82,7 +80,7 @@ func initRedisClient() redis.Cmdable {
 </table>
 
 **NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`),
-and doesn't support statefulCmdable APIs. We will continue to add support for additional Redis APIs in the future; 
+and doesn't support statefulCmdable APIs. We will continue to add support for additional Redis APIs in the future;
 for more information see the [Current Redis API Support](#current-redis-api-support) section later in this doc.
 
 ## Installation
@@ -102,7 +100,7 @@ The examples will utilize your auth token via the environment variable `MOMENTO_
 ### Basic Example
 
 In the [`examples/basic`](./examples/basic) directory, you will find a simple CLI app that does some basic sets and gets
-on string values. You can also run the tests against your Redis server by providing ```-useRedis``` flag along 
+on string values. You can also run the tests against your Redis server by providing ```-useRedis``` flag along
 with ```-host x.x.x.x``` and ```-port xxxx```.
 
 You can run the example via `go run`.
