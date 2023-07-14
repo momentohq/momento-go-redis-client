@@ -23,6 +23,7 @@ var _ = Describe("Scalar methods", func() {
 		cacheName := fmt.Sprintf("golang-redis-%s", uuid.NewString())
 		switch sContext.UseRedis {
 		case true:
+			// change if running on different host and port
 			host := "127.0.0.1"
 			port := "6379"
 			sContext.Client = redis.NewClient(&redis.Options{

@@ -10,7 +10,7 @@ Here's an example run against Momento Cache:
 ```bash
 cd examples/basic
 export MOMENTO_AUTH_TOKEN=<your momento auth token goes here>
-go run main.go -cacheName cache -authToken $MOMENTO_AUTH_TOKEN
+go run main.go -cacheName cache
 ```
 
 And the output should look something like this:

@@ -10,7 +10,7 @@ import (
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
-	momento_redis "github.com/momentohq/momento-go-redis-client/momento-redis"
+	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -23,7 +23,6 @@ type RedisOptions struct {
 
 type MomentoOptions struct {
 	cacheName         string
-	authToken         string
 	defaultTTlSeconds int
 }
 
@@ -34,10 +33,12 @@ var momentoCacheName string
 func main() {
 	parseFlags()
 
-	// Based on the -useRedis command line flag, we initialize either the
-	// Redis client or the Momento backed Redis client
+	// change this to the type momentoredis.MomentoRedisCmdable for compile-time checking
+	// var client momentoredis.MomentoRedisCmdable
 	var client redis.Cmdable
 
+	// Based on the -useRedis command line flag, we initialize either the
+	// Redis client or the Momento backed Redis client
 	switch o := options.(type) {
 	case *RedisOptions:
 		client = initGoRedisClient(*o)
@@ -48,12 +49,14 @@ func main() {
 		fmt.Println("\nUsing Momento as a backend for go-redis with cache name \"" + o.cacheName + "\"")
 
 	default:
-		panic("nothing found")
+		panic("Unable to parse options based for the Redis client")
 	}
 	fmt.Println("\n-------------------------------------------------")
 
+	ctx := context.Background()
+
 	key := "Momento"
-	sResp := client.Set(context.Background(), key, "cache", 60*time.Second)
+	sResp := client.Set(ctx, key, "cache", 60*time.Second)
 	if sResp.Val() != "OK" {
 		panic("Set response should be OK")
 	} else {
@@ -62,7 +65,7 @@ func main() {
 		fmt.Println("-----------------------SET-----------------------")
 	}
 	fmt.Println()
-	gResp := client.Get(context.Background(), key)
+	gResp := client.Get(ctx, key)
 	if gResp.Val() == "" {
 		panic("Get response should have returned value")
 	} else {
@@ -71,7 +74,7 @@ func main() {
 		fmt.Println("-----------------------GET-----------------------")
 	}
 	fmt.Println()
-	dResp := client.Del(context.Background(), key)
+	dResp := client.Del(ctx, key)
 	if dResp.Val() == 0 {
 		panic("Should have successfully deleted key")
 	} else {
@@ -81,7 +84,7 @@ func main() {
 
 	}
 	fmt.Println()
-	sNXResp := client.SetNX(context.Background(), key, "cache", 60*time.Second)
+	sNXResp := client.SetNX(ctx, key, "cache", 60*time.Second)
 	if sNXResp.Val() != true {
 		panic("Set Not exists response should be true/successful")
 	} else {
@@ -91,7 +94,7 @@ func main() {
 
 	}
 	fmt.Println()
-	expResp := client.Expire(context.Background(), key, 100*time.Second)
+	expResp := client.Expire(ctx, key, 100*time.Second)
 	if expResp.Val() != true {
 		panic("Expire response should be true/successful")
 	} else {
@@ -100,7 +103,7 @@ func main() {
 		fmt.Println("-----------------------EXPIRE-----------------------")
 	}
 	fmt.Println()
-	ttlResp := client.TTL(context.Background(), key)
+	ttlResp := client.TTL(ctx, key)
 	if ttlResp.Val() == -2 {
 		panic("Received no key exists response for existing key \"" + key + " while fetching TTL")
 	} else {
@@ -110,23 +113,30 @@ func main() {
 	}
 
 	if !useRedis {
-		momentoCacheClient.DeleteCache(context.Background(), &momento.DeleteCacheRequest{
+		momentoCacheClient.DeleteCache(ctx, &momento.DeleteCacheRequest{
 			CacheName: momentoCacheName,
 		})
 	}
 
 }
 
-func initMomentoRedisClient(options MomentoOptions) *momento_redis.MomentoRedisClient {
+func initMomentoRedisClient(options MomentoOptions) *momentoredis.MomentoRedisClient {
 	momentoCacheName = options.cacheName
-	credential, _ := auth.NewStringMomentoTokenProvider(options.authToken)
-	cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, time.Duration(options.defaultTTlSeconds)*time.Second)
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	if eErr != nil {
+		panic("Failed to initialize credentials through auth token. Did you export the environment" +
+			" variable MOMENTO_AUTH_TOKEN?\n" + eErr.Error())
+	}
+	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, time.Duration(options.defaultTTlSeconds)*time.Second)
+	if cErr != nil {
+		panic("Failed to initialize Momento cache client\n" + cErr.Error())
+	}
 	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
 		CacheName: options.cacheName,
 	})
 
-	redisClient := momento_redis.NewMomentoRedisClient(cacheClient, options.cacheName)
+	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, options.cacheName)
 	momentoCacheClient = cacheClient
 	return redisClient
 }
@@ -141,7 +151,6 @@ func parseFlags() {
 	host := flag.String("host", "", "Hostname for the Redis server")
 	port := flag.String("port", "", "Hostname for the Redis server")
 	cacheName := flag.String("cacheName", "", "Cache name for the Momento service")
-	authToken := flag.String("authToken", "", "Auth token for the Momento service")
 	defaultTTL := flag.Int("defaultTTLSeconds", 60, "The default TTL for your Momento cache")
 	flag.Parse()
 
@@ -156,13 +165,12 @@ func parseFlags() {
 		}
 	} else {
 
-		if *cacheName == "" || *authToken == "" {
-			panic("Running in Momento mode: Momento cacheName (-cacheName) and authToken (-authToken) should be provided through command line arguments." +
+		if *cacheName == "" {
+			panic("Running in Momento mode: Momento cacheName (-cacheName) should be provided through command line arguments." +
 				"For Redis more, use flag -useRedis along with -host and -port")
 		}
 		options = &MomentoOptions{
 			cacheName:         *cacheName,
-			authToken:         *authToken,
 			defaultTTlSeconds: *defaultTTL,
 		}
 	}

@@ -24,8 +24,8 @@ func NewMomentoRedisClient(cacheClient momento.CacheClient, cacheName string) *M
 	return &client
 }
 
-func (c *MomentoRedisClient) String() string {
-	return fmt.Sprintf("Momento< cache:%s>", c.cacheName)
+func (m *MomentoRedisClient) String() string {
+	return fmt.Sprintf("Momento< cache:%s>", m.cacheName)
 }
 
 type UnsupportedOperationError string

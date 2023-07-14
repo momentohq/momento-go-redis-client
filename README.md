@@ -28,14 +28,19 @@ To switch your existing `go-redis` application to use Momento, you only need to 
 
 ```go
 package redis
+
 import (
 	"github.com/redis/go-redis/v9"
 )
-// Replace these values with your Redis server's details
-REDIS_HOST := "my.redis-server.com"
-REDIS_PORT := 6379
-// Create a Redis client
-redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_PORT,})
+
+func initRedisClient() redis.Cmdable {
+	// Replace these values with your Redis server's details
+	REDIS_HOST := "my.redis-server.com"
+	REDIS_PORT := "6379"
+	// Create a Redis client
+	redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_PORT})
+	return redisClient
+}
 ```
 </td>
 </tr>
@@ -50,14 +55,26 @@ import (
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
-	"github.com/momentohq/momento-go-redis-client/momento-redis"
+	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
+	"github.com/redis/go-redis/v9"
+	"time"
 )
 
-credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
-cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest {CacheName : "default_cache"})
-redisClient := momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
+func initRedisClient() redis.Cmdable {
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	if eErr != nil {
+		panic("Failed to initialize credentials through auth token " + eErr.Error())
+	}
+	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+	if cErr != nil {
+		panic("Failed to initialize Momento cache client " + cErr.Error())
+	}
+	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
+	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
+	return redisClient
+}
+
 ```
 
 </td>
@@ -67,16 +84,6 @@ redisClient := momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
 **NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`),
 and doesn't support statefulCmdable APIs. We will continue to add support for additional Redis APIs in the future; 
 for more information see the [Current Redis API Support](#current-redis-api-support) section later in this doc.
-
-## Current Redis API Support
-
-This library supports the most popular Redis APIs, but does not yet support all Redis APIs. We currently support the most
-common APIs related to string values (GET, SET, etc.). We will be adding support for additional
-APIs in the future. If there is a particular API that you need support for, please drop by our [Discord](https://discord.com/invite/3HkAKjUZGq)
-or e-mail us at [support@momentohq.com](mailto:support@momentohq.com) and let us know!
-
-In the meantime, if you call a method from the `momento-redis` API that we do not yet support, you will get a panic for 
-`UnsupportedOperationError`; letting you know that the method is not implemented yet.
 
 ## Installation
 
@@ -105,7 +112,7 @@ Here's an example run against Momento Cache:
 ```bash
 cd examples/basic
 export MOMENTO_AUTH_TOKEN=<your momento auth token goes here>
-go run main.go -cacheName cache -authToken $MOMENTO_AUTH_TOKEN
+go run main.go -cacheName cache
 ```
 
 And the output should look something like this:
@@ -151,13 +158,23 @@ To run against Redis, the command will look like:
  go run main.go -useRedis -host 127.0.0.1 -port 6379
 ```
 
+## Current Redis API Support
+
+This library supports the most popular Redis APIs, but does not yet support all Redis APIs. We currently support the most
+common APIs related to string values (GET, SET, etc.). We will be adding support for additional
+APIs in the future. If there is a particular API that you need support for, please drop by our [Discord](https://discord.com/invite/3HkAKjUZGq)
+or e-mail us at [support@momentohq.com](mailto:support@momentohq.com) and let us know!
+
+In the meantime, if you call a method from the `momento-redis` API that we do not yet support, you will get a panic for
+`UnsupportedOperationError`; letting you know that the method is not implemented yet.
+
 ### Go-Lang Compile-Time API Checking
 
 If you'd like compile-time checking to tell you if you are using any APIs that we don't yet
 support, we provide our own `MomentoRedisCmdable` interface, which is a fully compatible subset of the official `go-redis`
 interface `Cmdable`, but explicitly lists out the APIs that we currently support.
 
-With a one-line change to your constructor call, you get back an instance of this interface instead of the
+With a one-line change to your initialization call, you get back an instance of this interface instead of the
 default `redis.Cmdable` interface. Then the go-lang compiler will catch any calls your code is making to Redis
 API methods that we don't yet support, so you'll know before you even try to run the code.
 
@@ -172,17 +189,28 @@ import (
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/momento"
-	"github.com/momentohq/momento-go-redis-client/momento-redis"
+	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
+	"time"
 )
 
-credential, _ := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
-cacheClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest {CacheName : "default_cache"})
-var redisClient momento_redis.MomentoRedisCmdable = momento_redis.NewMomentoRedisClient(cacheClient, "default_cache")
+// only change in the function definition from before and the body remains the same
+func initRedisClient() momentoredis.MomentoRedisCmdable {
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	if eErr != nil {
+		panic("Failed to initialize credentials through auth token " + eErr.Error())
+	}
+	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+	if cErr != nil {
+		panic("Failed to initialize Momento cache client " + cErr.Error())
+	}
+	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
+	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
+	return redisClient
+}
 ```
 
-Exactly the same constructor call as before other than the `momento_redis.MomentoRedisCmdable` type, and now you get compile-time compatibility checking!\*
+Exactly the same initialization call as before other than the `momento_redis.MomentoRedisCmdable` type, and now you get compile-time compatibility checking!\*
 
 If you try this, and your code doesn't compile because we are missing APIs that you need, please do reach out to us!
 
