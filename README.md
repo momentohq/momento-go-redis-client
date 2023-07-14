@@ -38,6 +38,8 @@ REDIS_PORT := 6379
 redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_PORT,})
 ```
 </td>
+</tr>
+<tr>
 <td width="50%">
 
 ```go
@@ -86,9 +88,9 @@ go get github.com/momentohq/momento-go-redis-client@v0.1.8
 
 ### Prerequisites
 
-To run these examples, you will need a Momento auth token. You can generate one using the [Momento CLI](https://github.com/momentohq/momento-cli).
+To run these examples, you will need a Momento auth token. A Momento auth token is required, you can generate one using the [Momento Console](https://console.gomomento.com)
 
-The examples will utlize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
+The examples will utilize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
 
 ### Basic Example
 

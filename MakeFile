@@ -33,3 +33,12 @@ precommit: lint test-momento
 .PHONY: test-momento
 test-momento:
 	ginkgo momento-redis/ -- -UseRedis=false
+
+.PHONY: test-redis
+test-redis:
+	ginkgo momento-redis/ -- -UseRedis=true
+
+.PHONY: test
+test:
+	ginkgo momento-redis/ -- -UseRedis=false
+	ginkgo momento-redis/ -- -UseRedis=true

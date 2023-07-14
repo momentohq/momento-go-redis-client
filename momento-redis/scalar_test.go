@@ -2,6 +2,7 @@ package momento_redis_test
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"reflect"
 	"strconv"
 	"time"
@@ -19,7 +20,7 @@ import (
 var _ = Describe("Scalar methods", func() {
 	sContext := NewSharedContext()
 	BeforeEach(func() {
-		cacheName := "default_cache"
+		cacheName := fmt.Sprintf("golang-redis-%s", uuid.NewString())
 		switch sContext.UseRedis {
 		case true:
 			host := "127.0.0.1"
