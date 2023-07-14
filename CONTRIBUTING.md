@@ -54,7 +54,7 @@ make test-redis
 
 This assumes the Redis server is running on `localhost:6379`.
 
-By running Redis on the local host, you can use the `redis-cli` to inspect the state of the Redis server as well as interactively debug the tests. We have also included a devcontainer config which will mount the entire coding environment into a Docker container, including the Redis server. See `.devcontainer` for more details.
+By running Redis on the local host, you can use the `redis-cli` to inspect the state of the Redis server as well as interactively debug the tests. 
 
 ### Run all tests
 
