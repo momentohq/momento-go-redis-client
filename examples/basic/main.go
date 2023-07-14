@@ -33,7 +33,8 @@ var momentoCacheName string
 func main() {
 	parseFlags()
 
-	// change this to the type momentoredis.MomentoRedisCmdable for compile-time checking
+	// change this to the type momentoredis.MomentoRedisCmdable for compile-time checking. This interface only
+	// has the Redis Commands that this compatibility client supports.
 	// var client momentoredis.MomentoRedisCmdable
 	var client redis.Cmdable
 
@@ -132,9 +133,12 @@ func initMomentoRedisClient(options MomentoOptions) *momentoredis.MomentoRedisCl
 		panic("Failed to initialize Momento cache client\n" + cErr.Error())
 	}
 	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
+	_, createErr := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{
 		CacheName: options.cacheName,
 	})
+	if createErr != nil {
+		panic("Failed to create cache with cache name " + options.cacheName + "\n" + createErr.Error())
+	}
 
 	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, options.cacheName)
 	momentoCacheClient = cacheClient
@@ -167,7 +171,7 @@ func parseFlags() {
 
 		if *cacheName == "" {
 			panic("Running in Momento mode: Momento cacheName (-cacheName) should be provided through command line arguments." +
-				"For Redis more, use flag -useRedis along with -host and -port")
+				"For Redis mode, use flag -useRedis along with -host and -port")
 		}
 		options = &MomentoOptions{
 			cacheName:         *cacheName,

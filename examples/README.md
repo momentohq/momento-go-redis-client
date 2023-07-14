@@ -69,3 +69,31 @@ To run against Redis, the command will look like:
 ```bash
  go run main.go -useRedis -host 127.0.0.1 -port 6379
 ```
+
+#### Running examples with compile-time checking and Momento flavor interface
+
+If you'd like compile-time checking to tell you if you are using any APIs that we don't yet
+support, we provide our own `MomentoRedisCmdable` interface, which is a fully compatible subset of the official `go-redis`
+interface `Cmdable`, but explicitly lists out the APIs that we currently support.
+
+If you want the examples to be run using the Momento flavor interface, 
+change line number #37 on main.go and comment line number #38. With this one line of code change,
+you get compile time checking and it also runs against both Momento and Redis!
+
+###### From:
+
+```go
+    // change this to the type momentoredis.MomentoRedisCmdable for compile-time checking. This interface only
+    // has the Redis Commands that this compatibility client supports.
+    // var client momentoredis.MomentoRedisCmdable
+    var client redis.Cmdable
+```
+
+###### To:
+
+```go
+    // change this to the type momentoredis.MomentoRedisCmdable for compile-time checking. This interface only
+    // has the Redis Commands that this compatibility client supports.
+    var client momentoredis.MomentoRedisCmdable
+    // var client redis.Cmdable
+```

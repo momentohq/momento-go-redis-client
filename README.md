@@ -17,10 +17,9 @@ You can use Momento as your cache engine for any Go project that support a redis
 
 To switch your existing `go-redis` application to use Momento, you only need to change the code where you construct your client object:
 
-<table>
-<tr>
- <td width="50%">With go-redis client</td>
- <td width="50%" valign="top">
+
+##### With go-redis client
+
 
 ```go
 package redis
@@ -38,12 +37,8 @@ func initRedisClient() redis.Cmdable {
 	return redisClient
 }
 ```
-</td>
 
-</tr>
-<tr>
- <td width="50%">With Momento's go-redis compatibility client</td>
- <td width="50%" valign="top">
+##### With Momento's go-redis compatibility client
 
 ```go
 package redis
@@ -68,16 +63,15 @@ func initRedisClient() redis.Cmdable {
 		panic("Failed to initialize Momento cache client " + cErr.Error())
 	}
 	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	_, createErr := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	if createErr != nil {
+		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
+	}
 	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
 	return redisClient
 }
-
 ```
 
-</td>
-</tr>
-</table>
 
 **NOTE**: The Momento `momento-redis` implementation currently supports simple key/value pairs (`GET`, `SET`, `SETNX`, `DEL`, `EXPIRE`, `TTL`),
 and doesn't support statefulCmdable APIs. We will continue to add support for additional Redis APIs in the future;
@@ -202,7 +196,10 @@ func initRedisClient() momentoredis.MomentoRedisCmdable {
 		panic("Failed to initialize Momento cache client " + cErr.Error())
 	}
 	// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-	cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	_, createErr := cacheClient.CreateCache(context.Background(), &momento.CreateCacheRequest{CacheName: "default_cache"})
+	if createErr != nil {
+		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
+	}
 	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
 	return redisClient
 }
