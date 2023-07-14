@@ -35,7 +35,7 @@ make lint
 ### Run integration tests against Momento 
 
 ```bash
-TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN>
+export TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN>
 make test-momento
 ```
 ### Run integration tests against Redis
@@ -46,7 +46,7 @@ First run Redis either natively, run Redis in a Docker container, or do your dev
 docker run -it -p 6379:6379 redis
 ```
 
-Then run the tests against .NET6 and .NET Framework:
+Then run the tests
 
 ```
 make test-redis
@@ -61,6 +61,6 @@ By running Redis on the local host, you can use the `redis-cli` to inspect the s
 This will run both the integration tests against Momento and Redis. As above, we assume the Redis server is running on `localhost:6379`.
 
 ```bash
-TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN> 
+export TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN> 
 make test
 ```
