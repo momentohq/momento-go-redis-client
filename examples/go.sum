@@ -26,6 +26,8 @@ github.com/momentohq/momento-go-redis-client v0.1.5 h1:/RjJV5hcatlRzUxorUYkZxGXG
 github.com/momentohq/momento-go-redis-client v0.1.5/go.mod h1:u8n7REV/0agpwMt5aShGlo2zEaAUjmxucMjBlRqELjI=
 github.com/momentohq/momento-go-redis-client v0.1.6 h1:4mXL6vt/xg+M1+0D4nRxyy6iQL1+UIVfzKK/xZr5Hwg=
 github.com/momentohq/momento-go-redis-client v0.1.6/go.mod h1:u8n7REV/0agpwMt5aShGlo2zEaAUjmxucMjBlRqELjI=
+github.com/momentohq/momento-go-redis-client v0.1.11 h1:JEgYtmBbn9OuO4seytMqTE6ubA6DBKlqsS8y+v9eUTo=
+github.com/momentohq/momento-go-redis-client v0.1.11/go.mod h1:kOSe9T4tJZANjPg4vKFLMoz2oIg8WfHTHeFPulKEqNA=
 github.com/onsi/ginkgo/v2 v2.11.0 h1:WgqUCUt/lT6yXoQ8Wef0fsNn5cAuMK7+KT9UFRz2tcU=
 github.com/onsi/gomega v1.27.8 h1:gegWiwZjBsf2DgiSbf5hpokZ98JVDMcWkUiigk6/KXc=
 github.com/redis/go-redis/v9 v9.0.5 h1:CuQcn5HIEeK7BgElubPP8CGtE0KakrnbBSTLjathl5o=

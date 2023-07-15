@@ -81,7 +81,7 @@ for more information see the [Current Redis API Support](#current-redis-api-supp
 ## Installation
 
 ```bash
-go get github.com/momentohq/momento-go-redis-client
+go get github.com/momentohq/momento-go-redis-client@v0.1.11
 ```
 
 ## Examples
