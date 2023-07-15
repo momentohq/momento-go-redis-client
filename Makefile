@@ -27,6 +27,11 @@ lint: format imports tidy vet
 build:
 	go build ./...
 
+.PHONY: build-examples
+build-examples:
+	cd examples
+	go build ./...
+
 .PHONY: precommit
 precommit: lint test-momento
 

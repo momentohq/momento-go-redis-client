@@ -1,0 +1,21 @@
+name: On pull request
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Commitlint and Other Shared Build Steps
+        uses: momentohq/standards-and-practices/github-actions/shared-build@gh-actions-v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets:
+      auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
+      github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
+
+

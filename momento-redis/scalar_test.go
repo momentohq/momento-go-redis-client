@@ -2,10 +2,11 @@ package momento_redis_test
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"reflect"
 	"strconv"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"

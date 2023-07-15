@@ -1,0 +1,51 @@
+name: Manual Release
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  release:
+    needs: [test]
+    runs-on: ubuntu-20.04
+    outputs:
+      version: ${{ steps.release.outputs.release }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set release
+        id: semrel
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          force-bump-patch-version: true
+
+      - name: Output release
+        id: release
+        run: echo "::set-output name=release::${{ steps.semrel.outputs.version }}"
+
+  test:
+    uses: ./.github/workflows/test.yml
+    secrets:
+      auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
+      github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
+
+  publish_golang:
+    needs: [test, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Publish package
+        run: |
+          set -e
+          set -x
+          export COMPATIBILITY_CLIENT_VERSION="${{needs.release.outputs.version}}"
+          if [ -z "$COMPATIBILITY_CLIENT_VERSION"]
+          then
+            echo "Unable to determine Compatibility Client version!  Exiting!"
+            exit 1
+          fi
+          echo "COMPATIBILITY_CLIENT_VERSION=${COMPATIBILITY_CLIENT_VERSION}"
+          GOPROXY=proxy.golang.org go list -m github.com/momentohq/momento-go-redis-client@v${COMPATIBILITY_CLIENT_VERSION}
+        shell: bash
