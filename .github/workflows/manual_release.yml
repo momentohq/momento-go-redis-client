@@ -47,5 +47,5 @@ jobs:
             exit 1
           fi
           echo "COMPATIBILITY_CLIENT_VERSION=${COMPATIBILITY_CLIENT_VERSION}"
-          GOPROXY=proxy.golang.org go list -m github.com/momentohq/client-sdk-go@v${COMPATIBILITY_CLIENT_VERSION}
+          GOPROXY=proxy.golang.org go list -m github.com/momentohq/momento-go-redis-client@v${COMPATIBILITY_CLIENT_VERSION}
         shell: bash
