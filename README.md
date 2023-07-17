@@ -153,8 +153,28 @@ To run against Redis, the command will look like:
 
 ## Current Redis API Support
 
-This library supports the most popular Redis APIs, but does not yet support all Redis APIs. We currently support the most
-common APIs related to string values (GET, SET, etc.). We will be adding support for additional
+This library supports the most popular Redis APIs, but does not yet support all Redis APIs.
+
+<table>
+<tr>
+<td>
+Scalar Operations
+</td>
+<td>
+SET, GET, DEL, SETNX, EXPIRE, TTL
+</td>
+</tr>
+<tr>
+<td>
+Sorted Set Operations
+</td>
+<td>
+ZADD, ZRANGEBYSCORE, ZRANGEBYSCOREWITHSCORES, ZREVRANGEBYSCORE, ZREVRANGEBYSCOREWITHSCORES
+</td>
+</tr>
+</table>
+
+We will be adding support for additional
 APIs in the future. If there is a particular API that you need support for, please drop by our [Discord](https://discord.com/invite/3HkAKjUZGq)
 or e-mail us at [support@momentohq.com](mailto:support@momentohq.com) and let us know!
 

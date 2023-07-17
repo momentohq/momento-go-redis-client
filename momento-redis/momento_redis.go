@@ -50,4 +50,11 @@ type MomentoRedisCmdable interface {
 	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
 	TTL(ctx context.Context, key string) *redis.DurationCmd
+
+	// sorted set commands
+	ZAdd(ctx context.Context, key string, members ...redis.Z) *redis.IntCmd
+	ZRangeByScore(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.StringSliceCmd
+	ZRangeByScoreWithScores(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.ZSliceCmd
+	ZRevRangeByScore(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.StringSliceCmd
+	ZRevRangeByScoreWithScores(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.ZSliceCmd
 }
