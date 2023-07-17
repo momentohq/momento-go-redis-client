@@ -123,6 +123,57 @@ var _ = Describe("Sorted Set methods", func() {
 			Expect(zResp.Val()[0]).To(Equal(member2.Member))
 		})
 
+		It("Fetch by score with exclusion rule provided Min panics", func() {
+			if sContext.UseRedis {
+				// redis supports exclusion
+				return
+			}
+			member1 := &redis.Z{
+				Member: fmt.Sprintf("member-%s", uuid.NewString()),
+				Score:  98,
+			}
+			member2 := &redis.Z{
+				Member: fmt.Sprintf("member-%s", uuid.NewString()),
+				Score:  100,
+			}
+			setResp := sContext.Client.ZAdd(sContext.Ctx, "sortedSet", *member1, *member2)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal(int64(2)))
+
+			zRange := &redis.ZRangeBy{
+				Min: "(98",
+				Max: "100",
+			}
+			defer assertUnsupportedOperationPanic("Momento currently does not support exclusion of scores")
+			sContext.Client.ZRangeByScore(sContext.Ctx, "sortedSet", zRange)
+		})
+
+		It("Fetch by score with exclusion rule provided Max panics", func() {
+			if sContext.UseRedis {
+				// redis supports exclusion
+				return
+			}
+			member1 := &redis.Z{
+				Member: fmt.Sprintf("member-%s", uuid.NewString()),
+				Score:  98,
+			}
+			member2 := &redis.Z{
+				Member: fmt.Sprintf("member-%s", uuid.NewString()),
+				Score:  100,
+			}
+			setResp := sContext.Client.ZAdd(sContext.Ctx, "sortedSet", *member1, *member2)
+			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal(int64(2)))
+
+			zRange := &redis.ZRangeBy{
+				Min: "98",
+				Max: "(100",
+			}
+			defer assertUnsupportedOperationPanic("Momento currently does not support exclusion of scores")
+			sContext.Client.ZRangeByScore(sContext.Ctx, "sortedSet", zRange)
+
+		})
+
 		It("Fetch by score no Min", func() {
 			member1 := &redis.Z{
 				Member: fmt.Sprintf("member-%s", uuid.NewString()),

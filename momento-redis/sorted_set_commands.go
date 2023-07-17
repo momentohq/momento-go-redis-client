@@ -406,9 +406,9 @@ func validateFetchByScoreOptions(opt *ZRangeBy) MomentoZRangeBy {
 	// the length check is present because an empty string is treated as 0 and will be assigned as such later
 	if opt.Min != "-inf" && len(opt.Min) > 0 {
 		if strings.HasPrefix(opt.Min, "(") {
-			panic("Momento currently does not support exclusion of scores. Please omit ( from your" +
+			panic(UnsupportedOperationError("Momento currently does not support exclusion of scores. Please omit ( from your" +
 				" request and retry. Reach out to us at Discord https://discord.com/invite/3HkAKjUZGq) or e-mail us at " +
-				"support@momentohq.com if you want such capabilities!")
+				"support@momentohq.com if you want such capabilities!"))
 		}
 		val, err := strconv.ParseFloat(opt.Min, 64)
 		if err != nil {
@@ -421,9 +421,9 @@ func validateFetchByScoreOptions(opt *ZRangeBy) MomentoZRangeBy {
 	// the length check is present because an empty string is treated as 0 and will be assigned as such later
 	if opt.Max != "+inf" && len(opt.Max) > 0 {
 		if strings.HasPrefix(opt.Max, "(") {
-			panic("Momento currently does not support exclusion of scores. Please omit ( from your" +
+			panic(UnsupportedOperationError("Momento currently does not support exclusion of scores. Please omit ( from your" +
 				" request and retry. Reach out to us at Discord https://discord.com/invite/3HkAKjUZGq) or e-mail us at " +
-				"support@momentohq.com if you want such capabilities!")
+				"support@momentohq.com if you want such capabilities!"))
 		}
 		val, err := strconv.ParseFloat(opt.Max, 64)
 		if err != nil {

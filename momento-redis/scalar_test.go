@@ -373,7 +373,7 @@ func assertUnsupportedOperationPanic(message string) {
 		if ok {
 			Expect(errMsg.Error()).To(ContainSubstring(message))
 		} else {
-			Fail("Unknown panic occured")
+			Fail("Unknown panic occured " + errMsg.Error())
 		}
 	}
 }
