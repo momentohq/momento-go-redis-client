@@ -20,7 +20,7 @@ import (
 var _ = Describe("Sorted Set methods", func() {
 	sContext := NewSharedContext()
 	BeforeEach(func() {
-		cacheName := "default_cache"
+		cacheName := fmt.Sprintf("golang-redis-%s", uuid.NewString())
 		switch sContext.UseRedis {
 		case true:
 			host := "127.0.0.1"
