@@ -427,7 +427,7 @@ func validateFetchByScoreOptions(opt *ZRangeBy) MomentoZRangeBy {
 		}
 		val, err := strconv.ParseFloat(opt.Max, 64)
 		if err != nil {
-			panic("Cannot parse string MaxScore into float")
+			panic("Cannot parse string MaxScore into float, MaxScore: " + opt.Max)
 		}
 		mZRange.MaxScore = &val
 	}
