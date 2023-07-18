@@ -9,7 +9,7 @@ The examples will utilize your auth token via the environment variable `MOMENTO_
 ## Installation
 
 ```bash
-go get github.com/momentohq/momento-go-redis-client@v0.1.11
+go get github.com/momentohq/momento-go-redis-client
 ```
 
 ### Basic Example
