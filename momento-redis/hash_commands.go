@@ -171,7 +171,7 @@ func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...int
 
 	switch dictionarySetFieldsResponse.(type) {
 	case responses.DictionarySetFieldsResponse:
-		// redis returns the number of sorted set elements that were successfully stored
+		// redis returns the number of dictionary elements that were successfully stored
 		resp.SetVal(int64(len(elements)))
 	case error:
 		resp.SetErr(RedisError(err.Error()))
