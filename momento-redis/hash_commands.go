@@ -3,6 +3,8 @@ package momento_redis
 import (
 	"context"
 
+	"github.com/momentohq/client-sdk-go/momento"
+	"github.com/momentohq/client-sdk-go/responses"
 	. "github.com/redis/go-redis/v9"
 )
 
@@ -51,9 +53,131 @@ func (m *MomentoRedisClient) HMGet(ctx context.Context, key string, fields ...st
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...interface{}) *IntCmd {
+func hSetElementsFromStrings(values []interface{}) ([]momento.DictionaryElement, error) {
+	var elements []momento.DictionaryElement
+	for i := 0; i < len(values); i += 2 {
+		field, ok := values[i].(string)
+		if !ok {
+			return nil, UnsupportedOperationError("HSet received a non-string field while processing elements")
+		}
+		value, ok := values[i+1].(string)
+		if !ok {
+			return nil, UnsupportedOperationError("HSet received a non-string value while processing elements")
+		}
+		elements = append(elements, momento.DictionaryElement{
+			Field: momento.String(field),
+			Value: momento.String(value),
+		})
+	}
+	return elements, nil
+}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+func hSetElementsFromStringSlices(values []interface{}) ([]momento.DictionaryElement, error) {
+	var elements []momento.DictionaryElement
+	for _, slice := range values {
+		sliceValues, ok := slice.([]string)
+		if !ok {
+			return nil, UnsupportedOperationError("HSet received a non-string slice while processing elements")
+		}
+		for i := 0; i < len(sliceValues); i += 2 {
+			field := sliceValues[i]
+			value := sliceValues[i+1]
+			elements = append(elements, momento.DictionaryElement{
+				Field: momento.String(field),
+				Value: momento.String(value),
+			})
+		}
+	}
+	return elements, nil
+}
+
+func hSetElementsFromStringMaps(values []interface{}) ([]momento.DictionaryElement, error) {
+	var elements []momento.DictionaryElement
+	for _, value := range values {
+		valuesMap, ok := value.(map[string]string)
+		if !ok {
+			return nil, UnsupportedOperationError("HSet received a non string-interface{} map while processing elements")
+		}
+		for field, value := range valuesMap {
+			elements = append(elements, momento.DictionaryElement{
+				Field: momento.String(field),
+				Value: momento.String(value),
+			})
+		}
+	}
+	return elements, nil
+}
+
+func hSetElementsFromMomentoDictionaryElements(values []interface{}) ([]momento.DictionaryElement, error) {
+	var elements []momento.DictionaryElement
+	for _, value := range values {
+		switch v := value.(type) {
+		case momento.DictionaryElement:
+			elements = append(elements, v)
+		case interface{}:
+			return nil, UnsupportedOperationError("HSet received a non momento.DictionaryElement interface while processing elements")
+		}
+	}
+	return elements, nil
+}
+
+func hSetElementsFromMomentoDictionarySlices(values []interface{}) ([]momento.DictionaryElement, error) {
+	var elements []momento.DictionaryElement
+	for _, slice := range values {
+		sliceValues, ok := slice.([]momento.DictionaryElement)
+		if !ok {
+			return nil, UnsupportedOperationError("HSet received a non momento.DictionaryElement slice while processing elements")
+		}
+		elements = append(elements, sliceValues...)
+	}
+	return elements, nil
+}
+
+func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...interface{}) *IntCmd {
+	resp := &IntCmd{}
+	var elements []momento.DictionaryElement
+	var err error
+
+	// Assuming each of the variadic arguments are of the same type
+	switch values[0].(type) {
+	case string:
+		elements, err = hSetElementsFromStrings(values)
+	case []string:
+		elements, err = hSetElementsFromStringSlices(values)
+	case map[string]string:
+		elements, err = hSetElementsFromStringMaps(values)
+	case momento.DictionaryElement:
+		elements, err = hSetElementsFromMomentoDictionaryElements(values)
+	case []momento.DictionaryElement:
+		elements, err = hSetElementsFromMomentoDictionarySlices(values)
+	default:
+		err = UnsupportedOperationError("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, map[string]string, []string, or []momento.DictionaryElement to represent the elements to add to the hash map.")
+	}
+	if err != nil {
+		resp.SetErr(err)
+		return resp
+	}
+
+	dictionarySetFieldsResponse, err := m.client.DictionarySetFields(ctx, &momento.DictionarySetFieldsRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+		Elements:       elements,
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch dictionarySetFieldsResponse.(type) {
+	case responses.DictionarySetFieldsResponse:
+		// redis returns the number of sorted set elements that were successfully stored
+		resp.SetVal(int64(len(elements)))
+	case error:
+		resp.SetErr(RedisError(err.Error()))
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) HMSet(ctx context.Context, key string, values ...interface{}) *BoolCmd {
