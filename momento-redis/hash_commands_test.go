@@ -59,7 +59,7 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Val()).To(Equal(int64(2)))
 
 			// Accepts elements as a string literal
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", []string{"string-slice-1", "value-1", "string-slice-2", "value-2"})
+			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", []string{"string-slice-literal-1", "value-1", "string-slice-literal-2", "value-2"})
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
 
@@ -71,7 +71,7 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Val()).To(Equal(int64(2)))
 
 			// Accepts elements as multiple slices
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", []string{"string-slice-1", "value-1"}, []string{"string-slice-2", "value-2"})
+			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", []string{"string-multiple-slice-1", "value-1"}, []string{"string-multiple-slice-2", "value-2"})
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
 
