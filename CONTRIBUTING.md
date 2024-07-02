@@ -10,7 +10,7 @@ Happy coding :dancer:
 ## Requirements :coffee:
 
 - Go 1.18 or above is required https://go.dev/doc/install
-- A Momento auth token is required, you can generate one using the [Momento Console](https://console.gomomento.com)
+- A Momento API key is required, you can generate one using the [Momento Console](https://console.gomomento.com)
 
 <br/>
 

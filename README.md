@@ -54,9 +54,9 @@ import (
 )
 
 func initRedisClient() redis.Cmdable {
-	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
 	if eErr != nil {
-		panic("Failed to initialize credentials through auth token " + eErr.Error())
+		panic("Failed to initialize credentials through API key " + eErr.Error())
 	}
 	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
 	if cErr != nil {
@@ -88,9 +88,9 @@ go get github.com/momentohq/momento-go-redis-client
 
 ### Prerequisites
 
-To run these examples, you will need a Momento auth token. A Momento auth token is required, you can generate one using the [Momento Console](https://console.gomomento.com)
+To run these examples, you will need a Momento API key. A Momento API key is required, you can generate one using the [Momento Console](https://console.gomomento.com)
 
-The examples will utilize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
+The examples will utilize your API key via the environment variable `MOMENTO_API_KEY` you set.
 
 ### Basic Example
 
@@ -104,7 +104,7 @@ Here's an example run against Momento Cache:
 
 ```bash
 cd examples/basic
-export MOMENTO_AUTH_TOKEN=<your momento auth token goes here>
+export MOMENTO_API_KEY=<your momento API key goes here>
 go run main.go -cacheName cache
 ```
 
@@ -208,9 +208,9 @@ import (
 
 // only change in the function definition from before and the body remains the same
 func initRedisClient() momentoredis.MomentoRedisCmdable {
-	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
 	if eErr != nil {
-		panic("Failed to initialize credentials through auth token " + eErr.Error())
+		panic("Failed to initialize credentials through API key " + eErr.Error())
 	}
 	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
 	if cErr != nil {

@@ -2,9 +2,9 @@
 
 ### Prerequisites
 
-To run these examples, you will need a Momento auth token. A Momento auth token is required, you can generate one using the [Momento Console](https://console.gomomento.com)
+To run these examples, you will need a Momento API key. You can generate one using the [Momento Console](https://console.gomomento.com)
 
-The examples will utilize your auth token via the environment variable `MOMENTO_AUTH_TOKEN` you set.
+The examples will utilize your API key via the environment variable `MOMENTO_API_KEY` you set.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Here's an example run against Momento Cache:
 
 ```bash
 cd examples/basic
-export MOMENTO_AUTH_TOKEN=<your momento auth token goes here>
+export MOMENTO_API_KEY=<your momento API key goes here>
 go run main.go -cacheName cache
 ```
 
