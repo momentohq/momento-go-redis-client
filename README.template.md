@@ -15,9 +15,7 @@ You can use Momento as your cache engine for any Go project that support a redis
 
 To switch your existing `go-redis` application to use Momento, you only need to change the code where you construct your client object:
 
-
 ### With go-redis client
-
 
 ```go
 package redis
