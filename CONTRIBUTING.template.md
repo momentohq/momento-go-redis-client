@@ -17,20 +17,20 @@ If you want to submit a change, please [submit a pull request to our project](ht
 
 ## Requirements :coffee:
 
-- Go 1.18 or above is required https://go.dev/doc/install
+- [Go 1.18 or above](https://go.dev/doc/install) is required 
 - A Momento API key is required, you can generate one using the [Momento Console](https://console.gomomento.com)
 
 ## Developing :computer:
 
 ### Build 
 
-```
+```bash
 make build
 ```
 
 ### Formatting and Tidy :flashlight:
 
-```
+```bash
 make lint
 ```
 
@@ -42,17 +42,18 @@ make lint
 export TEST_AUTH_TOKEN=<YOUR_AUTH_TOKEN>
 make test-momento
 ```
+
 ### Run integration tests against Redis
 
 First run Redis either natively, run Redis in a Docker container, or do your development in a devcontainer. Here is an example of running Redis in a Docker container:
 
-```
+```bash
 docker run -it -p 6379:6379 redis
 ```
 
 Then run the tests
 
-```
+```bash
 make test-redis
 ```
 
