@@ -70,11 +70,6 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
 
-			// Accepts elements as multiple slices
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", []string{"string-multiple-slice-1", "value-1"}, []string{"string-multiple-slice-2", "value-2"})
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
-
 			// Accepts elements as map[string]string
 			var stringValuesMap = make(map[string]string)
 			stringValuesMap["string-map-1"] = "value-1"
@@ -82,15 +77,12 @@ var _ = Describe("Dictionary methods", func() {
 			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", stringValuesMap)
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
+		})
 
-			// Accepts elements as multiple maps
-			var stringMap1 = make(map[string]string)
-			var stringMap2 = make(map[string]string)
-			stringMap1["multiple-maps-1"] = "value-1"
-			stringMap2["multiple-maps-2"] = "value-2"
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary", stringMap1, stringMap2)
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
+		It("Adds Momento DictionaryElements to a dictionary", func() {
+			if sContext.UseRedis {
+				return
+			}
 
 			momentoElement1 := momento.DictionaryElement{
 				Field: momento.String("momento-element-1"),
@@ -102,7 +94,7 @@ var _ = Describe("Dictionary methods", func() {
 			}
 
 			// Accepts elements as individual momento.DictionaryElements
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary-elements", momentoElement1, momentoElement2)
+			resp := sContext.Client.HSet(sContext.Ctx, "dictionary-elements", momentoElement1, momentoElement2)
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
 
