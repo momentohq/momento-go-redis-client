@@ -52,22 +52,22 @@ import (
 )
 
 func initRedisClient() redis.Cmdable {
-	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
-	if eErr != nil {
-		panic("Failed to initialize credentials through API key " + eErr.Error())
-	}
-	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-	if cErr != nil {
-		panic("Failed to initialize Momento cache client " + cErr.Error())
-	}
-	// create cache; it resumes execution normally incase the cache already exists
-	_, createErr := cacheClient.CreateCache(context.Background(), 
-		                &momento.CreateCacheRequest{CacheName: "default_cache"})
-	if createErr != nil {
-		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
-	}
-	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
-	return redisClient
+  credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
+  if eErr != nil {
+    panic("Failed to initialize credentials through API key " + eErr.Error())
+  }
+  cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+  if cErr != nil {
+    panic("Failed to initialize Momento cache client " + cErr.Error())
+  }
+  // create cache; it resumes execution normally incase the cache already exists
+  _, createErr := cacheClient.CreateCache(context.Background(), 
+                    &momento.CreateCacheRequest{CacheName: "default_cache"})
+  if createErr != nil {
+    panic("Failed to create cache with cache name default cache \n" + createErr.Error())
+  }
+  redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
+  return redisClient
 }
 ```
 
@@ -195,32 +195,32 @@ All you need to do is type the `MomentoRedisClient` object we instantiated above
 package redis
 
 import (
-	"context"
-	"github.com/momentohq/client-sdk-go/auth"
-	"github.com/momentohq/client-sdk-go/config"
-	"github.com/momentohq/client-sdk-go/momento"
-	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
-	"time"
+  "context"
+  "github.com/momentohq/client-sdk-go/auth"
+  "github.com/momentohq/client-sdk-go/config"
+  "github.com/momentohq/client-sdk-go/momento"
+  momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
+  "time"
 )
 
 // only change in the function definition from before and the body remains the same
 func initRedisClient() momentoredis.MomentoRedisCmdable {
-	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
-	if eErr != nil {
-		panic("Failed to initialize credentials through API key " + eErr.Error())
-	}
-	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-	if cErr != nil {
-		panic("Failed to initialize Momento cache client " + cErr.Error())
-	}
-	// create cache; it resumes execution normally incase the cache already exists
-	_, createErr := cacheClient.CreateCache(context.Background(), 
-		                &momento.CreateCacheRequest{CacheName: "default_cache"})
-	if createErr != nil {
-		panic("Failed to create cache with cache name default cache \n" + createErr.Error())
-	}
-	redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
-	return redisClient
+  credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
+  if eErr != nil {
+    panic("Failed to initialize credentials through API key " + eErr.Error())
+  }
+  cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+  if cErr != nil {
+    panic("Failed to initialize Momento cache client " + cErr.Error())
+  }
+  // create cache; it resumes execution normally incase the cache already exists
+  _, createErr := cacheClient.CreateCache(context.Background(), 
+                    &momento.CreateCacheRequest{CacheName: "default_cache"})
+  if createErr != nil {
+    panic("Failed to create cache with cache name default cache \n" + createErr.Error())
+  }
+  redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
+  return redisClient
 }
 ```
 
