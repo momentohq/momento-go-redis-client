@@ -23,16 +23,16 @@ To switch your existing `go-redis` application to use Momento, you only need to 
 package redis
 
 import (
-	"github.com/redis/go-redis/v9"
+  "github.com/redis/go-redis/v9"
 )
 
 func initRedisClient() redis.Cmdable {
-	// Replace these values with your Redis server's details
-	REDIS_HOST := "my.redis-server.com"
-	REDIS_PORT := "6379"
-	// Create a Redis client
-	redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_PORT})
-	return redisClient
+  // Replace these values with your Redis server's details
+  REDIS_HOST := "my.redis-server.com"
+  REDIS_PORT := "6379"
+  // Create a Redis client
+  redisClient := redis.NewClient(&redis.Options{Addr: REDIS_HOST + ":" + REDIS_PORT})
+  return redisClient
 }
 ```
 
@@ -42,13 +42,13 @@ func initRedisClient() redis.Cmdable {
 package redis
 
 import (
-	"context"
-	"github.com/momentohq/client-sdk-go/auth"
-	"github.com/momentohq/client-sdk-go/config"
-	"github.com/momentohq/client-sdk-go/momento"
-	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
-	"github.com/redis/go-redis/v9"
-	"time"
+  "context"
+  "github.com/momentohq/client-sdk-go/auth"
+  "github.com/momentohq/client-sdk-go/config"
+  "github.com/momentohq/client-sdk-go/momento"
+  momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
+  "github.com/redis/go-redis/v9"
+  "time"
 )
 
 func initRedisClient() redis.Cmdable {
