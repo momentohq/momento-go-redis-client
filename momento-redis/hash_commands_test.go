@@ -79,44 +79,7 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Val()).To(Equal(int64(2)))
 		})
 
-		It("Adds Momento DictionaryElements to a dictionary", func() {
-			if sContext.UseRedis {
-				return
-			}
-
-			momentoElement1 := momento.DictionaryElement{
-				Field: momento.String("momento-element-1"),
-				Value: momento.String("value-1"),
-			}
-			momentoElement2 := momento.DictionaryElement{
-				Field: momento.String("momento-element-2"),
-				Value: momento.String("value-2"),
-			}
-
-			// Accepts elements as individual momento.DictionaryElements
-			resp := sContext.Client.HSet(sContext.Ctx, "dictionary-elements", momentoElement1, momentoElement2)
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
-
-			// Accepts elements as slice literal of momento.DictionaryElement
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary-elements-slice-literal", []momento.DictionaryElement{momentoElement1, momentoElement2})
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
-
-			// Accepts elements as slice of momento.DictionaryElement
-			var momentoElements []momento.DictionaryElement
-			momentoElements = append(momentoElements, momentoElement1, momentoElement2)
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary-elements-slice", momentoElements)
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
-
-			// Accepts elements as slices of momento.DictionaryElement
-			resp = sContext.Client.HSet(sContext.Ctx, "dictionary-elements-slices", []momento.DictionaryElement{momentoElement1}, []momento.DictionaryElement{momentoElement2})
-			Expect(resp.Err()).To(BeNil())
-			Expect(resp.Val()).To(Equal(int64(2)))
-		})
-
-		It("Adds to dictionary unsupported type and panics", func() {
+		It("Adds to dictionary unsupported type and returns error", func() {
 			if sContext.UseRedis {
 				return
 			}
@@ -134,7 +97,7 @@ var _ = Describe("Dictionary methods", func() {
 			}
 			resp := sContext.Client.HSet(sContext.Ctx, "dictionary", random1, random2)
 			Expect(resp.Err()).ToNot(BeNil())
-			Expect(resp.Err().Error()).To(ContainSubstring("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, map[string]string, []string, or []momento.DictionaryElement to represent the elements to add to the hash map."))
+			Expect(resp.Err().Error()).To(ContainSubstring("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, []string, or map[string]string to represent the elements to add to the hash map."))
 		})
 	})
 })

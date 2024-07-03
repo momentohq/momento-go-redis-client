@@ -108,31 +108,6 @@ func hSetElementsFromStringMaps(values []interface{}) ([]momento.DictionaryEleme
 	return elements, nil
 }
 
-func hSetElementsFromMomentoDictionaryElements(values []interface{}) ([]momento.DictionaryElement, error) {
-	var elements []momento.DictionaryElement
-	for _, value := range values {
-		switch v := value.(type) {
-		case momento.DictionaryElement:
-			elements = append(elements, v)
-		case interface{}:
-			return nil, UnsupportedOperationError("HSet received a non momento.DictionaryElement interface while processing elements")
-		}
-	}
-	return elements, nil
-}
-
-func hSetElementsFromMomentoDictionarySlices(values []interface{}) ([]momento.DictionaryElement, error) {
-	var elements []momento.DictionaryElement
-	for _, slice := range values {
-		sliceValues, ok := slice.([]momento.DictionaryElement)
-		if !ok {
-			return nil, UnsupportedOperationError("HSet received a non momento.DictionaryElement slice while processing elements")
-		}
-		elements = append(elements, sliceValues...)
-	}
-	return elements, nil
-}
-
 func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...interface{}) *IntCmd {
 	resp := &IntCmd{}
 	var elements []momento.DictionaryElement
@@ -146,12 +121,8 @@ func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...int
 		elements, err = hSetElementsFromStringSlices(values)
 	case map[string]string:
 		elements, err = hSetElementsFromStringMaps(values)
-	case momento.DictionaryElement:
-		elements, err = hSetElementsFromMomentoDictionaryElements(values)
-	case []momento.DictionaryElement:
-		elements, err = hSetElementsFromMomentoDictionarySlices(values)
 	default:
-		err = UnsupportedOperationError("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, map[string]string, []string, or []momento.DictionaryElement to represent the elements to add to the hash map.")
+		err = UnsupportedOperationError("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, []string, or map[string]string to represent the elements to add to the hash map.")
 	}
 	if err != nil {
 		resp.SetErr(err)
