@@ -3,11 +3,17 @@ package helpers
 import (
 	"context"
 	"flag"
+	"fmt"
 	"testing"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/momentohq/client-sdk-go/auth"
+	"github.com/momentohq/client-sdk-go/config"
 	"github.com/momentohq/client-sdk-go/responses"
 
 	"github.com/momentohq/client-sdk-go/momento"
+	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -23,6 +29,7 @@ type SharedContext struct {
 	Client        redis.Cmdable
 	MomentoClient momento.CacheClient
 	Ctx           context.Context
+	CacheName     string
 }
 
 const AuthTokenEnvVariable string = "TEST_AUTH_TOKEN"
@@ -43,6 +50,26 @@ func NewSharedContext() SharedContext {
 	shared := SharedContext{}
 	shared.UseRedis = useRedis
 	shared.Ctx = context.Background()
+
+	shared.CacheName = fmt.Sprintf("golang-redis-%s", uuid.NewString())
+	switch shared.UseRedis {
+	case true:
+		host := "127.0.0.1"
+		port := "6379"
+		shared.Client = redis.NewClient(&redis.Options{
+			Addr: host + ":" + port,
+		})
+	case false:
+		credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
+		mClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+		shared.MomentoClient = mClient
+		// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
+		_, createErr := shared.CreateCache(shared.Ctx, mClient, shared.CacheName)
+		if createErr != nil {
+			panic("Failed to create cache with cache name " + shared.CacheName + "\n" + createErr.Error())
+		}
+		shared.Client = momentoredis.NewMomentoRedisClient(mClient, shared.CacheName)
+	}
 	return shared
 }
 
@@ -56,4 +83,15 @@ func (SharedContext) DeleteCache(ctx context.Context, client momento.CacheClient
 	return client.DeleteCache(ctx, &momento.DeleteCacheRequest{
 		CacheName: cacheName,
 	})
+}
+
+func (shared SharedContext) Close() {
+	if shared.UseRedis {
+		shared.Client.FlushDB(shared.Ctx)
+	} else {
+		_, deleteErr := shared.DeleteCache(shared.Ctx, shared.MomentoClient, shared.CacheName)
+		if deleteErr != nil {
+			panic("Failed to delete cache with cache name " + shared.CacheName + "\n" + deleteErr.Error())
+		}
+	}
 }
