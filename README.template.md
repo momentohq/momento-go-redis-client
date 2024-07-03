@@ -36,6 +36,9 @@ func initRedisClient() redis.Cmdable {
 
 ### With Momento's go-redis compatibility client
 
+This snippet assumes that a Momento Cache named "default_cache" already exists.
+You can create a cache using the `CreateCache` method or using the [Momento Console](https://console.gomomento.com/caches).
+
 ```go
 package redis
 
@@ -57,12 +60,6 @@ func initRedisClient() redis.Cmdable {
   cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
   if cErr != nil {
     panic("Failed to initialize Momento cache client " + cErr.Error())
-  }
-  // create cache; it resumes execution normally incase the cache already exists
-  _, createErr := cacheClient.CreateCache(context.Background(), 
-                    &momento.CreateCacheRequest{CacheName: "default_cache"})
-  if createErr != nil {
-    panic("Failed to create cache with cache name default cache \n" + createErr.Error())
   }
   redisClient := momentoredis.NewMomentoRedisClient(cacheClient, "default_cache")
   return redisClient
