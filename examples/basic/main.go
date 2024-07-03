@@ -123,10 +123,10 @@ func main() {
 
 func initMomentoRedisClient(options MomentoOptions) *momentoredis.MomentoRedisClient {
 	momentoCacheName = options.cacheName
-	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_AUTH_TOKEN")
+	credential, eErr := auth.NewEnvMomentoTokenProvider("MOMENTO_API_KEY")
 	if eErr != nil {
-		panic("Failed to initialize credentials through auth token. Did you export the environment" +
-			" variable MOMENTO_AUTH_TOKEN?\n" + eErr.Error())
+		panic("Failed to initialize credentials through API key. Did you export the environment" +
+			" variable MOMENTO_API_KEY?\n" + eErr.Error())
 	}
 	cacheClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, time.Duration(options.defaultTTlSeconds)*time.Second)
 	if cErr != nil {

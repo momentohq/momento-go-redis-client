@@ -11,11 +11,32 @@ jobs:
         uses: momentohq/standards-and-practices/github-actions/shared-build@gh-actions-v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  readme:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Verify README generation
+        uses: momentohq/standards-and-practices/github-actions/oss-readme-template@gh-actions-v2
+        with:
+          project_status: official
+          project_stability: beta
+          project_type: other
+          template_file: README.template.md
+          output_file: README.md
+      
+      - name: Verify CONTRIBUTING generation
+        uses: momentohq/standards-and-practices/github-actions/oss-readme-template@gh-actions-v2
+        with:
+          project_status: official
+          project_stability: beta
+          project_type: other
+          template_file: CONTRIBUTING.template.md
+          output_file: CONTRIBUTING.md
 
   test:
     uses: ./.github/workflows/test.yml
     secrets:
       auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
       github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
-
-
