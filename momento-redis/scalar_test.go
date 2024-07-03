@@ -6,11 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
-
-	"github.com/momentohq/client-sdk-go/auth"
-	"github.com/momentohq/client-sdk-go/config"
-	"github.com/momentohq/client-sdk-go/momento"
 	momentoredis "github.com/momentohq/momento-go-redis-client/momento-redis"
 	. "github.com/momentohq/momento-go-redis-client/momento-redis/test_helpers"
 	. "github.com/onsi/ginkgo/v2"
@@ -19,43 +14,10 @@ import (
 )
 
 var _ = Describe("Scalar methods", func() {
-	sContext := NewSharedContext()
+	var sContext SharedContext
 	BeforeEach(func() {
-		cacheName := fmt.Sprintf("golang-redis-%s", uuid.NewString())
-		switch sContext.UseRedis {
-		case true:
-			// change if running on different host and port
-			host := "127.0.0.1"
-			port := "6379"
-			sContext.Client = redis.NewClient(&redis.Options{
-				Addr: host + ":" + port,
-			})
-		case false:
-			credential, eErr := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-			if eErr != nil {
-				panic("Failed to initialize credentials through auth token. Did you export the environment" +
-					" variable TEST_AUTH_TOKEN?\n" + eErr.Error())
-			}
-			mClient, cErr := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
-			if cErr != nil {
-				panic("Failed to initialize Momento cache client\n" + cErr.Error())
-			}
-			sContext.MomentoClient = mClient
-			// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
-			_, createErr := sContext.CreateCache(sContext.Ctx, mClient, cacheName)
-			if createErr != nil {
-				panic("Failed to create cache with cache name " + cacheName + "\n" + createErr.Error())
-			}
-			sContext.Client = momentoredis.NewMomentoRedisClient(mClient, cacheName)
-		}
-		DeferCleanup(func() {
-			if !sContext.UseRedis {
-				_, deleteErr := sContext.DeleteCache(sContext.Ctx, sContext.MomentoClient, cacheName)
-				if deleteErr != nil {
-					panic("Failed to delete cache with cache name " + cacheName + "\n" + deleteErr.Error())
-				}
-			}
-		})
+		sContext = NewSharedContext()
+		DeferCleanup(func() { sContext.Close() })
 	})
 
 	var _ = Describe("Get and Set", func() {

@@ -57,4 +57,7 @@ type MomentoRedisCmdable interface {
 	ZRangeByScoreWithScores(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.ZSliceCmd
 	ZRevRangeByScore(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.StringSliceCmd
 	ZRevRangeByScoreWithScores(ctx context.Context, key string, opt *redis.ZRangeBy) *redis.ZSliceCmd
+
+	// dictionary commands
+	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 }
