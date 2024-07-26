@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/momentohq/client-sdk-go/auth"
 	"github.com/momentohq/client-sdk-go/config"
+	"github.com/momentohq/client-sdk-go/config/logger/momento_default_logger"
 	"github.com/momentohq/client-sdk-go/responses"
 
 	"github.com/momentohq/client-sdk-go/momento"
@@ -60,8 +61,9 @@ func NewSharedContext() SharedContext {
 			Addr: host + ":" + port,
 		})
 	case false:
+		momentoLoggerFactory := momento_default_logger.NewDefaultMomentoLoggerFactory(momento_default_logger.WARN)
 		credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-		mClient, _ := momento.NewCacheClient(config.LaptopLatest(), credential, 60*time.Second)
+		mClient, _ := momento.NewCacheClient(config.LaptopLatestWithLogger(momentoLoggerFactory), credential, 60*time.Second)
 		shared.MomentoClient = mClient
 		// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 		_, createErr := shared.CreateCache(shared.Ctx, mClient, shared.CacheName)

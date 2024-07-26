@@ -64,4 +64,26 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Err().Error()).To(ContainSubstring("HSet has not implemented a way to handle the passed in values. Please pass in a series of strings, []string, or map[string]string to represent the elements to add to the hash map."))
 		})
 	})
+
+	Describe("Dictionary get fields", func() {
+		It("Gets a single value from a dictionary", func() {
+			// Add some elements to the dictionary
+			resp := sContext.Client.HSet(sContext.Ctx, "dictionary", "string-1", "value-1", "string-2", "value-2")
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal(int64(2)))
+
+			// Get existing elements -> cache hit
+			getResp := sContext.Client.HGet(sContext.Ctx, "dictionary", "string-1")
+			Expect(getResp.Err()).To(BeNil())
+			Expect(getResp.Val()).To(Equal("value-1"))
+
+			getResp = sContext.Client.HGet(sContext.Ctx, "dictionary", "string-2")
+			Expect(getResp.Err()).To(BeNil())
+			Expect(getResp.Val()).To(Equal("value-2"))
+
+			// Get nonexistent element -> cache miss
+			getResp = sContext.Client.HGet(sContext.Ctx, "dictionary", "string-3")
+			Expect(getResp.Err()).To(Not(BeNil()))
+		})
+	})
 })
