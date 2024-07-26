@@ -61,4 +61,5 @@ type MomentoRedisCmdable interface {
 	// dictionary commands
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	HGet(ctx context.Context, key string, field string) *redis.StringCmd
+	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
 }

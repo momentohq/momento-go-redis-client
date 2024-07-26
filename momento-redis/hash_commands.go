@@ -43,8 +43,28 @@ func (m *MomentoRedisClient) HGet(ctx context.Context, key, field string) *redis
 }
 
 func (m *MomentoRedisClient) HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd {
+	resp := &redis.MapStringStringCmd{}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	dictionaryFetchResponse, err := m.client.DictionaryFetch(ctx, &momento.DictionaryFetchRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	// Miss return values differ from HGET but it matches what Redis client expects
+	switch r := dictionaryFetchResponse.(type) {
+	case *responses.DictionaryFetchHit:
+		resp.SetVal(r.ValueMapStringString())
+	case *responses.DictionaryFetchMiss:
+		resp.SetErr(nil)
+		resp.SetVal(map[string]string{})
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd {
