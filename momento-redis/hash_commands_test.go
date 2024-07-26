@@ -124,4 +124,25 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(getResp.Val()).To(Equal(expectedResponse))
 		})
 	})
+
+	Describe("Dictionary remove fields", func() {
+		It("Removes values from a dictionary", func() {
+			dictionaryName := newDictionaryName()
+
+			// Removing from empty dictionary should succeed
+			deleteResp := sContext.Client.HDel(sContext.Ctx, dictionaryName, "string-1")
+			Expect(deleteResp.Err()).To(BeNil())
+			Expect(deleteResp.Val()).To(Equal(int64(0)))
+
+			// Add some elements to the dictionary
+			resp := sContext.Client.HSet(sContext.Ctx, dictionaryName, "string-1", "value-1", "string-2", "value-2")
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal(int64(2)))
+
+			// Removing from non-empty dictionary should succeed
+			deleteResp = sContext.Client.HDel(sContext.Ctx, dictionaryName, "string-1")
+			Expect(deleteResp.Err()).To(BeNil())
+			Expect(deleteResp.Val()).To(Equal(int64(1)))
+		})
+	})
 })

@@ -9,8 +9,59 @@ import (
 )
 
 func (m *MomentoRedisClient) HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd {
+	resp := &redis.IntCmd{}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	// Defaults to 0 in case of cache miss
+	lengthBefore := uint32(0)
+	lengthAfter := uint32(0)
+
+	lengthResponse, err := m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		lengthBefore = r.Length()
+	}
+
+	stringFields := []momento.Value{}
+	for _, field := range fields {
+		stringFields = append(stringFields, momento.String(field))
+	}
+
+	dictionaryRemoveFieldsResponse, err := m.client.DictionaryRemoveFields(ctx, &momento.DictionaryRemoveFieldsRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+		Fields:         stringFields,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	lengthResponse, err = m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		lengthAfter = r.Length()
+	}
+
+	switch dictionaryRemoveFieldsResponse.(type) {
+	case *responses.DictionaryRemoveFieldsSuccess:
+		resp.SetVal(int64(lengthBefore - lengthAfter))
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) HExists(ctx context.Context, key, field string) *redis.BoolCmd {
