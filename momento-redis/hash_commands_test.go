@@ -125,9 +125,14 @@ var _ = Describe("Dictionary methods", func() {
 		})
 	})
 
-	Describe("Dictionary remove fields", func() {
+	Describe("Dictionary remove fields and length", func() {
 		It("Removes values from a dictionary", func() {
 			dictionaryName := newDictionaryName()
+
+			// Empty dictionary has 0 length
+			lengthResp := sContext.Client.HLen(sContext.Ctx, dictionaryName)
+			Expect(lengthResp.Err()).To(BeNil())
+			Expect(lengthResp.Val()).To(Equal(int64(0)))
 
 			// Removing from empty dictionary should succeed
 			deleteResp := sContext.Client.HDel(sContext.Ctx, dictionaryName, "string-1")
@@ -139,10 +144,18 @@ var _ = Describe("Dictionary methods", func() {
 			Expect(resp.Err()).To(BeNil())
 			Expect(resp.Val()).To(Equal(int64(2)))
 
+			lengthResp = sContext.Client.HLen(sContext.Ctx, dictionaryName)
+			Expect(lengthResp.Err()).To(BeNil())
+			Expect(lengthResp.Val()).To(Equal(int64(2)))
+
 			// Removing from non-empty dictionary should succeed
 			deleteResp = sContext.Client.HDel(sContext.Ctx, dictionaryName, "string-1")
 			Expect(deleteResp.Err()).To(BeNil())
 			Expect(deleteResp.Val()).To(Equal(int64(1)))
+
+			lengthResp = sContext.Client.HLen(sContext.Ctx, dictionaryName)
+			Expect(lengthResp.Err()).To(BeNil())
+			Expect(lengthResp.Val()).To(Equal(int64(1)))
 		})
 	})
 })

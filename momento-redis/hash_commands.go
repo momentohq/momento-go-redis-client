@@ -134,8 +134,26 @@ func (m *MomentoRedisClient) HKeys(ctx context.Context, key string) *redis.Strin
 }
 
 func (m *MomentoRedisClient) HLen(ctx context.Context, key string) *redis.IntCmd {
+	resp := &redis.IntCmd{}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	lengthResponse, err := m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		resp.SetVal(int64(r.Length()))
+	case *responses.DictionaryLengthMiss:
+		resp.SetVal(int64(0))
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) HMGet(ctx context.Context, key string, fields ...string) *redis.SliceCmd {
