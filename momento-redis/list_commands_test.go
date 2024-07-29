@@ -87,4 +87,45 @@ var _ = Describe("Dictionary methods", func() {
 			}
 		})
 	})
+
+	Describe("List fetch", func() {
+		It("Gets elements given various ranges", func() {
+			listName := newListName()
+
+			// Empty list should return empty array
+			resp := sContext.Client.LRange(sContext.Ctx, listName, 0, 10)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{}))
+
+			// Add some values to the list
+			pushResp := sContext.Client.RPush(sContext.Ctx, listName, "value-1", "value-2", "value-3", "value-4")
+			Expect(pushResp.Err()).To(BeNil())
+			Expect(pushResp.Val()).To(Equal(int64(4)))
+
+			// Fetch all elements using exact range
+			resp = sContext.Client.LRange(sContext.Ctx, listName, 0, 3)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{"value-1", "value-2", "value-3", "value-4"}))
+
+			// Fetch using stop index > end of list
+			resp = sContext.Client.LRange(sContext.Ctx, listName, 0, 10)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{"value-1", "value-2", "value-3", "value-4"}))
+
+			// Fetch using start index > end of list
+			resp = sContext.Client.LRange(sContext.Ctx, listName, 10, 20)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{}))
+
+			// Fetch using start index > stop index
+			resp = sContext.Client.LRange(sContext.Ctx, listName, 2, 1)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{}))
+
+			// Fetch using negative range
+			resp = sContext.Client.LRange(sContext.Ctx, listName, -2, -1)
+			Expect(resp.Err()).To(BeNil())
+			Expect(resp.Val()).To(Equal([]string{"value-3", "value-4"}))
+		})
+	})
 })

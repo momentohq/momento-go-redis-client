@@ -113,8 +113,55 @@ func (m *MomentoRedisClient) LPushX(ctx context.Context, key string, values ...i
 }
 
 func (m *MomentoRedisClient) LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
+	resp := &redis.StringSliceCmd{}
+	startIndex := int32(start)
+	stopIndex := int32(stop + 1) // Momento uses exclusive end, Redis uses inclusive end
+	var listLength int32
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	// Get the length of the list
+	lengthResp, err := m.client.ListLength(ctx, &momento.ListLengthRequest{
+		CacheName: m.cacheName,
+		ListName:  key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+	switch r := lengthResp.(type) {
+	case *responses.ListLengthHit:
+		listLength = int32(r.Length())
+	case *responses.ListLengthMiss:
+		listLength = int32(0)
+	}
+
+	// If indices are negative, convert them to positive indices
+	if start < 0 {
+		startIndex = listLength + startIndex
+	}
+	if stop < 0 {
+		stopIndex = listLength + stopIndex
+	}
+
+	listFetchResponse, err := m.client.ListFetch(ctx, &momento.ListFetchRequest{
+		CacheName:  m.cacheName,
+		ListName:   key,
+		StartIndex: &startIndex,
+		EndIndex:   &stopIndex,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := listFetchResponse.(type) {
+	case *responses.ListFetchHit:
+		resp.SetVal(r.ValueList())
+	case *responses.ListFetchMiss:
+		// redis returns empty array when list doesn't exist
+		resp.SetVal([]string{})
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) LRem(ctx context.Context, key string, count int64, value interface{}) *redis.IntCmd {
