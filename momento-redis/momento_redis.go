@@ -67,4 +67,5 @@ type MomentoRedisCmdable interface {
 
 	// list commands
 	RPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
+	LLen(ctx context.Context, key string) *redis.IntCmd
 }

@@ -55,8 +55,26 @@ func (m *MomentoRedisClient) LInsertAfter(ctx context.Context, key string, pivot
 }
 
 func (m *MomentoRedisClient) LLen(ctx context.Context, key string) *redis.IntCmd {
+	resp := &redis.IntCmd{}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	listLengthResponse, err := m.client.ListLength(ctx, &momento.ListLengthRequest{
+		CacheName: m.cacheName,
+		ListName:  key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := listLengthResponse.(type) {
+	case *responses.ListLengthHit:
+		resp.SetVal(int64(r.Length()))
+	case *responses.ListLengthMiss:
+		// redis interprets a non-existing key as a list of length 0
+		resp.SetVal(0)
+	}
+
+	return resp
 }
 
 func (m *MomentoRedisClient) LMPop(ctx context.Context, direction string, count int64, keys ...string) *redis.KeyValuesCmd {
