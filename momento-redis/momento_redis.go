@@ -64,4 +64,7 @@ type MomentoRedisCmdable interface {
 	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
 	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
 	HLen(ctx context.Context, key string) *redis.IntCmd
+
+	// list commands
+	RPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 }

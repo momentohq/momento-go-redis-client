@@ -4,145 +4,189 @@ import (
 	"context"
 	"time"
 
-	. "github.com/redis/go-redis/v9"
+	"github.com/momentohq/client-sdk-go/momento"
+	"github.com/momentohq/client-sdk-go/responses"
+	"github.com/redis/go-redis/v9"
 )
 
-func (m *MomentoRedisClient) BLPop(ctx context.Context, timeout time.Duration, keys ...string) *StringSliceCmd {
+func (m *MomentoRedisClient) BLPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) BLMPop(ctx context.Context, timeout time.Duration, direction string, count int64, keys ...string) *KeyValuesCmd {
+func (m *MomentoRedisClient) BLMPop(ctx context.Context, timeout time.Duration, direction string, count int64, keys ...string) *redis.KeyValuesCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) BRPop(ctx context.Context, timeout time.Duration, keys ...string) *StringSliceCmd {
+func (m *MomentoRedisClient) BRPop(ctx context.Context, timeout time.Duration, keys ...string) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) BRPopLPush(ctx context.Context, source, destination string, timeout time.Duration) *StringCmd {
+func (m *MomentoRedisClient) BRPopLPush(ctx context.Context, source, destination string, timeout time.Duration) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LCS(ctx context.Context, q *LCSQuery) *LCSCmd {
+func (m *MomentoRedisClient) LCS(ctx context.Context, q *redis.LCSQuery) *redis.LCSCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LIndex(ctx context.Context, key string, index int64) *StringCmd {
+func (m *MomentoRedisClient) LIndex(ctx context.Context, key string, index int64) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LInsert(ctx context.Context, key, op string, pivot, value interface{}) *IntCmd {
+func (m *MomentoRedisClient) LInsert(ctx context.Context, key, op string, pivot, value interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LInsertBefore(ctx context.Context, key string, pivot, value interface{}) *IntCmd {
+func (m *MomentoRedisClient) LInsertBefore(ctx context.Context, key string, pivot, value interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LInsertAfter(ctx context.Context, key string, pivot, value interface{}) *IntCmd {
+func (m *MomentoRedisClient) LInsertAfter(ctx context.Context, key string, pivot, value interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LLen(ctx context.Context, key string) *IntCmd {
+func (m *MomentoRedisClient) LLen(ctx context.Context, key string) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LMPop(ctx context.Context, direction string, count int64, keys ...string) *KeyValuesCmd {
+func (m *MomentoRedisClient) LMPop(ctx context.Context, direction string, count int64, keys ...string) *redis.KeyValuesCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPop(ctx context.Context, key string) *StringCmd {
+func (m *MomentoRedisClient) LPop(ctx context.Context, key string) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPopCount(ctx context.Context, key string, count int) *StringSliceCmd {
+func (m *MomentoRedisClient) LPopCount(ctx context.Context, key string, count int) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPos(ctx context.Context, key string, value string, args LPosArgs) *IntCmd {
+func (m *MomentoRedisClient) LPos(ctx context.Context, key string, value string, args redis.LPosArgs) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPosCount(ctx context.Context, key string, value string, count int64, args LPosArgs) *IntSliceCmd {
+func (m *MomentoRedisClient) LPosCount(ctx context.Context, key string, value string, count int64, args redis.LPosArgs) *redis.IntSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPush(ctx context.Context, key string, values ...interface{}) *IntCmd {
+func (m *MomentoRedisClient) LPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LPushX(ctx context.Context, key string, values ...interface{}) *IntCmd {
+func (m *MomentoRedisClient) LPushX(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LRange(ctx context.Context, key string, start, stop int64) *StringSliceCmd {
+func (m *MomentoRedisClient) LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LRem(ctx context.Context, key string, count int64, value interface{}) *IntCmd {
+func (m *MomentoRedisClient) LRem(ctx context.Context, key string, count int64, value interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LSet(ctx context.Context, key string, index int64, value interface{}) *StatusCmd {
+func (m *MomentoRedisClient) LSet(ctx context.Context, key string, index int64, value interface{}) *redis.StatusCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LTrim(ctx context.Context, key string, start, stop int64) *StatusCmd {
+func (m *MomentoRedisClient) LTrim(ctx context.Context, key string, start, stop int64) *redis.StatusCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) RPop(ctx context.Context, key string) *StringCmd {
+func (m *MomentoRedisClient) RPop(ctx context.Context, key string) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) RPopCount(ctx context.Context, key string, count int) *StringSliceCmd {
+func (m *MomentoRedisClient) RPopCount(ctx context.Context, key string, count int) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) RPopLPush(ctx context.Context, source, destination string) *StringCmd {
+func (m *MomentoRedisClient) RPopLPush(ctx context.Context, source, destination string) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) RPush(ctx context.Context, key string, values ...interface{}) *IntCmd {
+func rPushElementsFromStrings(values []interface{}) ([]momento.Value, error) {
+	var elements []momento.Value
+	for i := 0; i < len(values); i++ {
+		value, ok := values[i].(string)
+		if !ok {
+			return nil, UnsupportedOperationError("RPush received a non-string element while processing elements")
+		}
+		elements = append(elements, momento.String(value))
+	}
+	return elements, nil
+}
+
+func (m *MomentoRedisClient) RPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
+	resp := &redis.IntCmd{}
+	var elements []momento.Value
+	var err error
+
+	switch values[0].(type) {
+	case string:
+		elements, err = rPushElementsFromStrings(values)
+	default:
+		err = UnsupportedOperationError("RPush has not implemented a way to handle the passed in values. Please pass in a series of strings to represent the elements to append to the list.")
+	}
+	if err != nil {
+		resp.SetErr(err)
+		return resp
+	}
+
+	listConcatBackResponse, err := m.client.ListConcatenateBack(ctx, &momento.ListConcatenateBackRequest{
+		CacheName: m.cacheName,
+		ListName:  key,
+		Values:    elements,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := listConcatBackResponse.(type) {
+	case *responses.ListConcatenateBackSuccess:
+		// redis returns the length of the list after the operation
+		resp.SetVal(int64(r.ListLength()))
+	}
+
+	return resp
+}
+
+func (m *MomentoRedisClient) RPushX(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) RPushX(ctx context.Context, key string, values ...interface{}) *IntCmd {
+func (m *MomentoRedisClient) LMove(ctx context.Context, source, destination, srcpos, destpos string) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) LMove(ctx context.Context, source, destination, srcpos, destpos string) *StringCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
-func (m *MomentoRedisClient) BLMove(ctx context.Context, source, destination, srcpos, destpos string, timeout time.Duration) *StringCmd {
+func (m *MomentoRedisClient) BLMove(ctx context.Context, source, destination, srcpos, destpos string, timeout time.Duration) *redis.StringCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
