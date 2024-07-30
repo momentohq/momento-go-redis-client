@@ -45,6 +45,7 @@ func (e RedisError) RedisError() {}
 // Using this will cause compile time errors incase you use an API that isn't already implemented.
 type MomentoRedisCmdable interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
+	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
 	SetNX(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.BoolCmd
 	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
