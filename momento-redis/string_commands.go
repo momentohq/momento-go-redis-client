@@ -59,14 +59,6 @@ func (m *MomentoRedisClient) IncrByFloat(ctx context.Context, key string, value 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func getKeyValues(keys ...string) []momento.Value {
-	var elements []momento.Value
-	for _, key := range keys {
-		elements = append(elements, momento.String(key))
-	}
-	return elements
-}
-
 func (m *MomentoRedisClient) MGet(ctx context.Context, keys ...string) *redis.SliceCmd {
 	resp := &redis.SliceCmd{}
 
@@ -85,7 +77,7 @@ func (m *MomentoRedisClient) MGet(ctx context.Context, keys ...string) *redis.Sl
 	}
 
 	switch r := getBatchResp.(type) {
-	case *responses.GetBatchSuccess:
+	case responses.GetBatchSuccess:
 		// redis returns list of key values or nil if missing
 		resultsMap := r.ValueMap()
 		batchGetValues := []interface{}{}
@@ -97,7 +89,6 @@ func (m *MomentoRedisClient) MGet(ctx context.Context, keys ...string) *redis.Sl
 				batchGetValues = append(batchGetValues, nil)
 			}
 		}
-
 		resp.SetVal(batchGetValues)
 	}
 	return resp

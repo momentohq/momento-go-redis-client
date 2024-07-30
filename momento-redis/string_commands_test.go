@@ -37,8 +37,10 @@ var _ = Describe("Dictionary methods", func() {
 			// Add the values
 			setResp := sContext.Client.Set(sContext.Ctx, key1, value1, 60*time.Second)
 			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
 			setResp = sContext.Client.Set(sContext.Ctx, key2, value2, 60*time.Second)
 			Expect(setResp.Err()).To(BeNil())
+			Expect(setResp.Val()).To(Equal("OK"))
 
 			// Get all existing values
 			resp := sContext.Client.MGet(sContext.Ctx, key1, key2)

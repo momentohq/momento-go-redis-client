@@ -194,29 +194,10 @@ func (m *MomentoRedisClient) RPopLPush(ctx context.Context, source, destination 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func rPushElementsFromStrings(values []interface{}) ([]momento.Value, error) {
-	var elements []momento.Value
-	for i := 0; i < len(values); i++ {
-		value, ok := values[i].(string)
-		if !ok {
-			return nil, UnsupportedOperationError("RPush received a non-string element while processing elements")
-		}
-		elements = append(elements, momento.String(value))
-	}
-	return elements, nil
-}
-
 func (m *MomentoRedisClient) RPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	resp := &redis.IntCmd{}
-	var elements []momento.Value
-	var err error
 
-	switch values[0].(type) {
-	case string:
-		elements, err = rPushElementsFromStrings(values)
-	default:
-		err = UnsupportedOperationError("RPush has not implemented a way to handle the passed in values. Please pass in a series of strings to represent the elements to append to the list.")
-	}
+	elements, err := marshalRedisValuesList(values)
 	if err != nil {
 		resp.SetErr(err)
 		return resp

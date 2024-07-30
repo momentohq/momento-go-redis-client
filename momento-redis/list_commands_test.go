@@ -46,7 +46,7 @@ var _ = Describe("Dictionary methods", func() {
 			listName := newListName()
 			resp := sContext.Client.RPush(sContext.Ctx, listName, random1, random2)
 			Expect(resp.Err()).ToNot(BeNil())
-			Expect(resp.Err().Error()).To(ContainSubstring("RPush has not implemented a way to handle the passed in values. Please pass in a series of strings to represent the elements to append to the list."))
+			Expect(resp.Err().Error()).To(ContainSubstring("unsupported type"))
 		})
 	})
 
