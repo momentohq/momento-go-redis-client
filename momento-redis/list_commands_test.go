@@ -13,7 +13,7 @@ func newListName() string {
 	return fmt.Sprintf("list-%s", uuid.NewString())
 }
 
-var _ = Describe("Dictionary methods", func() {
+var _ = Describe("List methods", func() {
 	var sContext SharedContext
 	BeforeEach(func() {
 		sContext = NewSharedContext()

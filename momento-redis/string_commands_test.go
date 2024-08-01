@@ -18,7 +18,7 @@ func newValue() string {
 	return fmt.Sprintf("value-%s", uuid.NewString())
 }
 
-var _ = Describe("Dictionary methods", func() {
+var _ = Describe("String commands methods", func() {
 	var sContext SharedContext
 	BeforeEach(func() {
 		sContext = NewSharedContext()
