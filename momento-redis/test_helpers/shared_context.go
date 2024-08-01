@@ -62,8 +62,14 @@ func NewSharedContext() SharedContext {
 		})
 	case false:
 		momentoLoggerFactory := momento_default_logger.NewDefaultMomentoLoggerFactory(momento_default_logger.WARN)
-		credential, _ := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
-		mClient, _ := momento.NewCacheClient(config.LaptopLatestWithLogger(momentoLoggerFactory), credential, 60*time.Second)
+		credential, err := auth.NewEnvMomentoTokenProvider(AuthTokenEnvVariable)
+		if err != nil {
+			panic("Failed to create testing momento credential provider\n" + err.Error())
+		}
+		mClient, err := momento.NewCacheClient(config.LaptopLatestWithLogger(momentoLoggerFactory), credential, 60*time.Second)
+		if err != nil {
+			panic("Failed to create testing momento client\n" + err.Error())
+		}
 		shared.MomentoClient = mClient
 		// create cache; it resumes execution normally incase the cache already exists and isn't exceptional
 		_, createErr := shared.CreateCache(shared.Ctx, mClient, shared.CacheName)

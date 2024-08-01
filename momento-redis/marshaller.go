@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/momentohq/client-sdk-go/momento"
 )
 
 type Marshaller struct{}
@@ -63,4 +65,18 @@ func (m *Marshaller) MarshalRedisValue(value interface{}) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported type: %T", v)
 	}
+}
+
+func marshalRedisValuesList(values []interface{}) ([]momento.Value, error) {
+	marshaller := &Marshaller{}
+	var elements []momento.Value
+
+	for _, value := range values {
+		marshalledValue, marshallErr := marshaller.MarshalRedisValue(value)
+		if marshallErr != nil {
+			return nil, marshallErr
+		}
+		elements = append(elements, momento.String(marshalledValue))
+	}
+	return elements, nil
 }
