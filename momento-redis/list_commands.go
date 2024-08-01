@@ -116,30 +116,32 @@ func (m *MomentoRedisClient) LRange(ctx context.Context, key string, start, stop
 	resp := &redis.StringSliceCmd{}
 	startIndex := int32(start)
 	stopIndex := int32(stop + 1) // Momento uses exclusive end, Redis uses inclusive end
-	var listLength int32
 
-	// Get the length of the list
-	lengthResp, err := m.client.ListLength(ctx, &momento.ListLengthRequest{
-		CacheName: m.cacheName,
-		ListName:  key,
-	})
-	if err != nil {
-		resp.SetErr(RedisError(err.Error()))
-		return resp
-	}
-	switch r := lengthResp.(type) {
-	case *responses.ListLengthHit:
-		listLength = int32(r.Length())
-	case *responses.ListLengthMiss:
-		listLength = int32(0)
-	}
+	if start < 0 || stop < 0 {
+		// ListLength call is only worth the expense if at least one index is negative
+		var listLength int32
+		lengthResp, err := m.client.ListLength(ctx, &momento.ListLengthRequest{
+			CacheName: m.cacheName,
+			ListName:  key,
+		})
+		if err != nil {
+			resp.SetErr(RedisError(err.Error()))
+			return resp
+		}
+		switch r := lengthResp.(type) {
+		case *responses.ListLengthHit:
+			listLength = int32(r.Length())
+		case *responses.ListLengthMiss:
+			listLength = int32(0)
+		}
 
-	// If indices are negative, convert them to positive indices
-	if start < 0 {
-		startIndex = listLength + startIndex
-	}
-	if stop < 0 {
-		stopIndex = listLength + stopIndex
+		// Convert any negative indices to positive indices
+		if start < 0 {
+			startIndex = listLength + startIndex
+		}
+		if stop < 0 {
+			stopIndex = listLength + stopIndex
+		}
 	}
 
 	listFetchResponse, err := m.client.ListFetch(ctx, &momento.ListFetchRequest{
