@@ -5,50 +5,158 @@ import (
 
 	"github.com/momentohq/client-sdk-go/momento"
 	"github.com/momentohq/client-sdk-go/responses"
-	. "github.com/redis/go-redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
-func (m *MomentoRedisClient) HDel(ctx context.Context, key string, fields ...string) *IntCmd {
+func (m *MomentoRedisClient) HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd {
+	resp := &redis.IntCmd{}
+
+	// Defaults to 0 in case of cache miss
+	lengthBefore := uint32(0)
+	lengthAfter := uint32(0)
+
+	lengthResponse, err := m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		lengthBefore = r.Length()
+	}
+
+	stringFields := []momento.Value{}
+	for _, field := range fields {
+		stringFields = append(stringFields, momento.String(field))
+	}
+
+	dictionaryRemoveFieldsResponse, err := m.client.DictionaryRemoveFields(ctx, &momento.DictionaryRemoveFieldsRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+		Fields:         stringFields,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	lengthResponse, err = m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		lengthAfter = r.Length()
+	}
+
+	switch dictionaryRemoveFieldsResponse.(type) {
+	case *responses.DictionaryRemoveFieldsSuccess:
+		resp.SetVal(int64(lengthBefore - lengthAfter))
+	}
+
+	return resp
+}
+
+func (m *MomentoRedisClient) HExists(ctx context.Context, key, field string) *redis.BoolCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HExists(ctx context.Context, key, field string) *BoolCmd {
+func (m *MomentoRedisClient) HGet(ctx context.Context, key, field string) *redis.StringCmd {
+	resp := &redis.StringCmd{}
+
+	dictionaryGetFieldResponse, err := m.client.DictionaryGetField(ctx, &momento.DictionaryGetFieldRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+		Field:          momento.String(field),
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := dictionaryGetFieldResponse.(type) {
+	case *responses.DictionaryGetFieldHit:
+		resp.SetVal(r.ValueString())
+	case *responses.DictionaryGetFieldMiss:
+		resp.SetErr(redis.Nil)
+	}
+
+	return resp
+}
+
+func (m *MomentoRedisClient) HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd {
+	resp := &redis.MapStringStringCmd{}
+
+	dictionaryFetchResponse, err := m.client.DictionaryFetch(ctx, &momento.DictionaryFetchRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	// Miss return values differ from HGET but it matches what Redis client expects
+	switch r := dictionaryFetchResponse.(type) {
+	case *responses.DictionaryFetchHit:
+		resp.SetVal(r.ValueMapStringString())
+	case *responses.DictionaryFetchMiss:
+		resp.SetErr(nil)
+		resp.SetVal(map[string]string{})
+	}
+
+	return resp
+}
+
+func (m *MomentoRedisClient) HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HGet(ctx context.Context, key, field string) *StringCmd {
+func (m *MomentoRedisClient) HIncrByFloat(ctx context.Context, key, field string, incr float64) *redis.FloatCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HGetAll(ctx context.Context, key string) *MapStringStringCmd {
+func (m *MomentoRedisClient) HKeys(ctx context.Context, key string) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HIncrBy(ctx context.Context, key, field string, incr int64) *IntCmd {
+func (m *MomentoRedisClient) HLen(ctx context.Context, key string) *redis.IntCmd {
+	resp := &redis.IntCmd{}
 
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
+	lengthResponse, err := m.client.DictionaryLength(ctx, &momento.DictionaryLengthRequest{
+		CacheName:      m.cacheName,
+		DictionaryName: key,
+	})
+
+	if err != nil {
+		resp.SetErr(RedisError(err.Error()))
+		return resp
+	}
+
+	switch r := lengthResponse.(type) {
+	case *responses.DictionaryLengthHit:
+		resp.SetVal(int64(r.Length()))
+	case *responses.DictionaryLengthMiss:
+		resp.SetVal(int64(0))
+	}
+
+	return resp
 }
 
-func (m *MomentoRedisClient) HIncrByFloat(ctx context.Context, key, field string, incr float64) *FloatCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
-func (m *MomentoRedisClient) HKeys(ctx context.Context, key string) *StringSliceCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
-func (m *MomentoRedisClient) HLen(ctx context.Context, key string) *IntCmd {
-
-	panic(UnsupportedOperationError("This operation has not been implemented yet"))
-}
-
-func (m *MomentoRedisClient) HMGet(ctx context.Context, key string, fields ...string) *SliceCmd {
+func (m *MomentoRedisClient) HMGet(ctx context.Context, key string, fields ...string) *redis.SliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
@@ -108,8 +216,8 @@ func hSetElementsFromStringMaps(values []interface{}) ([]momento.DictionaryEleme
 	return elements, nil
 }
 
-func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...interface{}) *IntCmd {
-	resp := &IntCmd{}
+func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
+	resp := &redis.IntCmd{}
 	var elements []momento.DictionaryElement
 	var err error
 
@@ -151,27 +259,27 @@ func (m *MomentoRedisClient) HSet(ctx context.Context, key string, values ...int
 	return resp
 }
 
-func (m *MomentoRedisClient) HMSet(ctx context.Context, key string, values ...interface{}) *BoolCmd {
+func (m *MomentoRedisClient) HMSet(ctx context.Context, key string, values ...interface{}) *redis.BoolCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HSetNX(ctx context.Context, key, field string, value interface{}) *BoolCmd {
+func (m *MomentoRedisClient) HSetNX(ctx context.Context, key, field string, value interface{}) *redis.BoolCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HVals(ctx context.Context, key string) *StringSliceCmd {
+func (m *MomentoRedisClient) HVals(ctx context.Context, key string) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HRandField(ctx context.Context, key string, count int) *StringSliceCmd {
+func (m *MomentoRedisClient) HRandField(ctx context.Context, key string, count int) *redis.StringSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
 
-func (m *MomentoRedisClient) HRandFieldWithValues(ctx context.Context, key string, count int) *KeyValueSliceCmd {
+func (m *MomentoRedisClient) HRandFieldWithValues(ctx context.Context, key string, count int) *redis.KeyValueSliceCmd {
 
 	panic(UnsupportedOperationError("This operation has not been implemented yet"))
 }
