@@ -1,8 +1,8 @@
 .PHONY: install-devtools
 install-devtools:
-	go install golang.org/x/tools/cmd/goimports@latest
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-	go install github.com/onsi/ginkgo/v2/ginkgo@latest
+	go install golang.org/x/tools/cmd/goimports@v0.24.0
+	go install honnef.co/go/tools/cmd/staticcheck@v0.4.7
+	go install github.com/onsi/ginkgo/v2/ginkgo@v2.8.1
 
 .PHONY: format
 format:
