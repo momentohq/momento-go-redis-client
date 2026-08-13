@@ -27,8 +27,6 @@ jobs:
     uses: ./.github/workflows/test.yml
     secrets:
       auth-token: ${{ secrets.ALPHA_TEST_AUTH_TOKEN }}
-      github-token: ${{ secrets.MOMENTO_MACHINE_USER_GITHUB_TOKEN }}
-
   publish_golang:
     needs: [test, release]
     runs-on: ubuntu-latest

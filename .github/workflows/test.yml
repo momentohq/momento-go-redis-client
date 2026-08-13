@@ -6,9 +6,6 @@ on:
       auth-token:
         description: "Auth token used for live testing"
         required: true
-      github-token:
-        description: "Token for running Github actions"
-        required: true
 
 jobs:
   test:
@@ -28,8 +25,6 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.github-token }}
 
       - name: Install Go
         uses: actions/setup-go@v3
